@@ -15,7 +15,7 @@ from project.config import (
     PERMANENT_SESSION_LIFETIME,
     DEBUG,
 )
-from project.database import db, PLACEHOLDER_kur, PLACEHOLDER
+from project.database import db, db_kur, PLACEHOLDER
 
 from project.routes.auth import auth_bp
 from project.routes.dashboard import dashboard_bp
