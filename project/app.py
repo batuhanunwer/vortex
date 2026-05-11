@@ -46,7 +46,7 @@ def _session_defaults():
 @app.context_processor
 def inject_unread():
     if "user" in session:
-        from database import db
+        from project.database import db
         conn = db()
         c = conn.cursor()
         c.execute("SELECT COUNT(*) as c FROM messages WHERE receiver=? AND is_read=0", (session["user"],))
