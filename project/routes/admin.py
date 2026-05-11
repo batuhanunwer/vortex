@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, abort, flash
-from database import db
+from project.database import db
 from functools import wraps
 from datetime import datetime
 import sqlite3

@@ -5,7 +5,7 @@ from flask import Flask, session
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
 
-from config import (
+from project.config import (
     SECRET_KEY,
     UPLOAD_FOLDER,
     SESSION_COOKIE_HTTPONLY,
@@ -15,17 +15,17 @@ from config import (
     PERMANENT_SESSION_LIFETIME,
     DEBUG,
 )
-from database import db_kur
+from project.database import db_kur
 
-from routes.auth import auth_bp
-from routes.dashboard import dashboard_bp
-from routes.messages import messages_bp
-from routes.groups import groups_bp
-from routes.vault import vault_bp
-from routes.admin import admin_bp
+from project.routes.auth import auth_bp
+from project.routes.dashboard import dashboard_bp
+from project.routes.messages import messages_bp
+from project.routes.groups import groups_bp
+from project.routes.vault import vault_bp
+from project.routes.admin import admin_bp
 
-from socketio_instance import socketio
-import socket_events
+from project.socketio_instance import socketio
+import project.socket_events
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 socketio.init_app(app)

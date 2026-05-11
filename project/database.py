@@ -1,5 +1,5 @@
 import sqlite3
-from config import DATABASE
+from project.config import DATABASE
 
 
 def db():

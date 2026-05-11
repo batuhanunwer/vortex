@@ -1,8 +1,8 @@
 import datetime
 from flask import session, request
 from flask_socketio import emit, join_room, leave_room
-from socketio_instance import socketio
-from database import db
+from project.socketio_instance import socketio
+from project.database import db
 
 connected_users = {}
 

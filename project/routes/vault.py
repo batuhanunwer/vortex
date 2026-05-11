@@ -20,8 +20,8 @@ from flask import (
 )
 from functools import wraps
 
-from config import VAULT_PASSPHRASE
-from database import db
+from project.config import VAULT_PASSPHRASE
+from project.database import db
 
 vault_bp = Blueprint("vault", __name__)
 

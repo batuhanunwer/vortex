@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
-from database import db
+from project.database import db
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
+from project.config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
 from datetime import datetime
 import os
 import sqlite3
