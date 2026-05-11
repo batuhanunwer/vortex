@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash, abort, jsonify, current_app
-from project.database import db
+from project.database import db, PLACEHOLDER
 from datetime import datetime
 from functools import wraps
 import sqlite3
@@ -54,8 +54,8 @@ def messages(chat_user=None):
                 if mid:
                     c.execute("""
                     UPDATE messages
-                    SET content=?, edited=1, edited_at=CURRENT_TIMESTAMP
-                    WHERE id=? AND sender=?
+                    SET content={PLACEHOLDER}, edited=1, edited_at=CURRENT_TIMESTAMP
+                    WHERE id={PLACEHOLDER} AND sender={PLACEHOLDER}
                     """, (body, mid, session["user"]))
                     if c.rowcount == 0:
                         flash("Mesaj bulunamadı veya düzenleme yetkin yok.", "danger")
@@ -65,7 +65,7 @@ def messages(chat_user=None):
                 # Yeni mesaj gönder
                 else:
                     # Alıcı var mı kontrol et
-                    c.execute("SELECT username FROM users WHERE username=? AND banned=0", (target,))
+                    c.execute(f"SELECT username FROM users WHERE username={PLACEHOLDER} AND banned=0", (target,))
                     if not c.fetchone():
                         flash("Alıcı bulunamadı!", "danger")
                         return redirect(url_for("messages.messages", chat_user=chat_user))
@@ -73,7 +73,7 @@ def messages(chat_user=None):
                     c.execute("""
                     INSERT INTO messages
                     (sender, receiver, content, timestamp)
-                    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                    VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, CURRENT_TIMESTAMP)
                     """, (session["user"], target, body))
                     
                     flash("Mesaj gönderildi!", "success")
@@ -93,10 +93,10 @@ def messages(chat_user=None):
             SELECT other.username AS contact, other.profile_pic AS pic, other.last_seen AS last_seen, MAX(m.id) AS last_id
             FROM messages m
             JOIN users other ON other.username = (
-                CASE WHEN m.sender = ? THEN m.receiver ELSE m.sender END
+                CASE WHEN m.sender = {PLACEHOLDER} THEN m.receiver ELSE m.sender END
             )
-            WHERE (m.sender = ? AND m.deleted_by_sender = 0)
-               OR (m.receiver = ? AND m.deleted_by_receiver = 0)
+            WHERE (m.sender = {PLACEHOLDER} AND m.deleted_by_sender = 0)
+               OR (m.receiver = {PLACEHOLDER} AND m.deleted_by_receiver = 0)
             GROUP BY other.username, other.profile_pic, other.last_seen
             ORDER BY last_id DESC
             """,
@@ -110,7 +110,7 @@ def messages(chat_user=None):
 
         if chat_user:
             # Chat kullanıcı var mı kontrol et
-            c.execute("SELECT username FROM users WHERE username=?", (chat_user,))
+            c.execute(f"SELECT username FROM users WHERE username={PLACEHOLDER}", (chat_user,))
             if not c.fetchone():
                 flash("Kullanıcı bulunamadı!", "danger")
                 return redirect(url_for("messages.messages"))
@@ -121,12 +121,12 @@ def messages(chat_user=None):
             FROM messages
             WHERE
                 (
-                    sender = ? AND receiver = ?
+                    sender = {PLACEHOLDER} AND receiver = {PLACEHOLDER}
                     AND deleted_by_sender = 0
                 )
                 OR
                 (
-                    sender = ? AND receiver = ?
+                    sender = {PLACEHOLDER} AND receiver = {PLACEHOLDER}
                     AND deleted_by_receiver = 0
                 )
             ORDER BY id ASC
@@ -143,11 +143,11 @@ def messages(chat_user=None):
             c.execute("""
             UPDATE messages
             SET is_read=1
-            WHERE sender=? AND receiver=? AND is_read=0
+            WHERE sender={PLACEHOLDER} AND receiver={PLACEHOLDER} AND is_read=0
             """, (chat_user, session["user"]))
 
             # Alıcının profil resmi
-            c.execute("SELECT profile_pic FROM users WHERE username=?", (chat_user,))
+            c.execute(f"SELECT profile_pic FROM users WHERE username={PLACEHOLDER}", (chat_user,))
             res = c.fetchone()
             if res:
                 profile_pic = res["profile_pic"]
@@ -179,7 +179,7 @@ def delete_message(msg_id):
         c = conn.cursor()
 
         # Mesaj var mı ve kime ait mi kontrol et
-        c.execute("SELECT sender, receiver FROM messages WHERE id=?", (msg_id,))
+        c.execute(f"SELECT sender, receiver FROM messages WHERE id={PLACEHOLDER}", (msg_id,))
         msg = c.fetchone()
 
         if not msg:
@@ -188,9 +188,9 @@ def delete_message(msg_id):
 
         # Sahibi mi kontrol et
         if msg["sender"] == session["user"]:
-            c.execute("UPDATE messages SET deleted_by_sender=1 WHERE id=?", (msg_id,))
+            c.execute(f"UPDATE messages SET deleted_by_sender=1 WHERE id={PLACEHOLDER}", (msg_id,))
         elif msg["receiver"] == session["user"]:
-            c.execute("UPDATE messages SET deleted_by_receiver=1 WHERE id=?", (msg_id,))
+            c.execute(f"UPDATE messages SET deleted_by_receiver=1 WHERE id={PLACEHOLDER}", (msg_id,))
         else:
             flash("Bu mesajı silemezsin!", "danger")
             return redirect(url_for("messages.messages"))
@@ -218,7 +218,7 @@ def delete_chat(chat_user):
         c = conn.cursor()
 
         # Kontrol: Kullanıcı var mı
-        c.execute("SELECT username FROM users WHERE username=?", (chat_user,))
+        c.execute(f"SELECT username FROM users WHERE username={PLACEHOLDER}", (chat_user,))
         if not c.fetchone():
             flash("Kullanıcı bulunamadı!", "danger")
             return redirect(url_for("messages.messages"))
@@ -227,13 +227,13 @@ def delete_chat(chat_user):
         c.execute("""
         UPDATE messages
         SET deleted_by_sender=1
-        WHERE sender=? AND receiver=?
+        WHERE sender={PLACEHOLDER} AND receiver={PLACEHOLDER}
         """, (session["user"], chat_user))
 
         c.execute("""
         UPDATE messages
         SET deleted_by_receiver=1
-        WHERE sender=? AND receiver=?
+        WHERE sender={PLACEHOLDER} AND receiver={PLACEHOLDER}
         """, (chat_user, session["user"]))
 
         conn.commit()
@@ -260,9 +260,9 @@ def archive():
         SELECT *
         FROM messages
         WHERE
-            (sender = ? AND deleted_by_sender = 1)
+            (sender = {PLACEHOLDER} AND deleted_by_sender = 1)
             OR
-            (receiver = ? AND deleted_by_receiver = 1)
+            (receiver = {PLACEHOLDER} AND deleted_by_receiver = 1)
         ORDER BY timestamp DESC
         LIMIT 100
         """, (session["user"], session["user"]))

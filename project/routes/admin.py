@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, abort, flash
-from project.database import db
+from project.database import db, PLACEHOLDER
 from functools import wraps
 from datetime import datetime
 import sqlite3
@@ -28,7 +28,7 @@ def log_admin_action(action, target_user, details=""):
         
         c.execute("""
         INSERT INTO admin_logs (admin_user, action, target_user, details, timestamp)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER})
         """, (admin_user, action, target_user, details, timestamp))
         
         conn.commit()
@@ -59,7 +59,7 @@ def admin():
 
                 c.execute("""
                 INSERT INTO announcements (content, created_by)
-                VALUES (?, ?)
+                VALUES ({PLACEHOLDER}, {PLACEHOLDER})
                 """, (msg, session.get("user")))
 
                 conn.commit()
@@ -83,15 +83,15 @@ def admin():
                     return redirect(url_for("admin.admin"))
 
                 # Kullanıcı var mı kontrol et
-                c.execute("SELECT username FROM users WHERE username = ?", (target_user,))
+                c.execute(f"SELECT username FROM users WHERE username = {PLACEHOLDER}", (target_user,))
                 if not c.fetchone():
                     flash("Kullanıcı bulunamadı!", "danger")
                     return redirect(url_for("admin.admin"))
 
                 c.execute("""
                 UPDATE users
-                SET role = ?
-                WHERE username = ?
+                SET role = {PLACEHOLDER}
+                WHERE username = {PLACEHOLDER}
                 """, (new_role, target_user))
 
                 conn.commit()
@@ -142,7 +142,7 @@ def ban(username):
         c = conn.cursor()
 
         # Kullanıcı var mı kontrol et
-        c.execute("SELECT username FROM users WHERE username = ?", (username,))
+        c.execute(f"SELECT username FROM users WHERE username = {PLACEHOLDER}", (username,))
         if not c.fetchone():
             flash("Kullanıcı bulunamadı!", "danger")
             return redirect(url_for("admin.admin"))
@@ -151,7 +151,7 @@ def ban(username):
         c.execute("""
         UPDATE users
         SET banned = 1
-        WHERE username = ?
+        WHERE username = {PLACEHOLDER}
         """, (username,))
 
         conn.commit()
@@ -178,7 +178,7 @@ def unban(username):
         c = conn.cursor()
 
         # Kullanıcı var mı kontrol et
-        c.execute("SELECT username FROM users WHERE username = ?", (username,))
+        c.execute(f"SELECT username FROM users WHERE username = {PLACEHOLDER}", (username,))
         if not c.fetchone():
             flash("Kullanıcı bulunamadı!", "danger")
             return redirect(url_for("admin.admin"))
@@ -186,7 +186,7 @@ def unban(username):
         c.execute("""
         UPDATE users
         SET banned = 0
-        WHERE username = ?
+        WHERE username = {PLACEHOLDER}
         """, (username,))
 
         conn.commit()

@@ -2,9 +2,9 @@ import datetime
 from flask import session, request
 from flask_socketio import emit, join_room, leave_room
 from project.socketio_instance import socketio
-from project.database import db
+from project.database import db, PLACEHOLDER
 
-connected_users = {}
+connected_users = {PLACEHOLDER}
 
 @socketio.on('connect')
 def handle_connect():
@@ -15,7 +15,7 @@ def handle_connect():
         # Also join any group rooms
         conn = db()
         c = conn.cursor()
-        c.execute("SELECT room_id FROM room_members WHERE username=?", (user,))
+        c.execute(f"SELECT room_id FROM room_members WHERE username={PLACEHOLDER}", (user,))
         for row in c.fetchall():
             join_room(f"group_{row['room_id']}")
         conn.close()
@@ -30,7 +30,7 @@ def handle_disconnect():
         try:
             conn = db()
             c = conn.cursor()
-            c.execute("UPDATE users SET last_seen=? WHERE username=?", (now, user))
+            c.execute(f"UPDATE users SET last_seen={PLACEHOLDER} WHERE username={PLACEHOLDER}", (now, user))
             conn.commit()
             conn.close()
         except:
@@ -52,7 +52,7 @@ def handle_private_message(data):
     conn = db()
     c = conn.cursor()
     c.execute(
-        "INSERT INTO messages (sender, receiver, content, timestamp) VALUES (?, ?, ?, ?)",
+        f"INSERT INTO messages (sender, receiver, content, timestamp) VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER})",
         (sender, receiver, content, timestamp)
     )
     msg_id = c.lastrowid
@@ -83,13 +83,13 @@ def handle_group_message(data):
     conn = db()
     c = conn.cursor()
     c.execute(
-        "INSERT INTO room_messages (room_id, sender, content, timestamp) VALUES (?, ?, ?, ?)",
+        f"INSERT INTO room_messages (room_id, sender, content, timestamp) VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER})",
         (room_id, sender, content, timestamp)
     )
     msg_id = c.lastrowid
     
     # Get profile pic for frontend
-    c.execute("SELECT profile_pic FROM users WHERE username=?", (sender,))
+    c.execute(f"SELECT profile_pic FROM users WHERE username={PLACEHOLDER}", (sender,))
     row = c.fetchone()
     pic = row['profile_pic'] if row else 'default.png'
     conn.commit()
@@ -123,7 +123,7 @@ def handle_mark_read(data):
     
     conn = db()
     c = conn.cursor()
-    c.execute("UPDATE messages SET is_read=1 WHERE receiver=? AND sender=? AND is_read=0", (user, sender))
+    c.execute(f"UPDATE messages SET is_read=1 WHERE receiver={PLACEHOLDER} AND sender={PLACEHOLDER} AND is_read=0", (user, sender))
     if c.rowcount > 0:
         conn.commit()
         emit('messages_read', {'reader': user}, room=sender)
@@ -138,16 +138,16 @@ def handle_delete_message(data):
     conn = db()
     c = conn.cursor()
     # Check if user is sender or receiver
-    c.execute("SELECT sender, receiver FROM messages WHERE id=?", (msg_id,))
+    c.execute(f"SELECT sender, receiver FROM messages WHERE id={PLACEHOLDER}", (msg_id,))
     msg = c.fetchone()
     if msg:
         if msg['sender'] == user:
-            c.execute("UPDATE messages SET deleted_by_sender=1 WHERE id=?", (msg_id,))
+            c.execute(f"UPDATE messages SET deleted_by_sender=1 WHERE id={PLACEHOLDER}", (msg_id,))
             conn.commit()
             emit('message_deleted', {'msg_id': msg_id}, room=msg['receiver'])
             emit('message_deleted', {'msg_id': msg_id}, room=msg['sender'])
         elif msg['receiver'] == user:
-            c.execute("UPDATE messages SET deleted_by_receiver=1 WHERE id=?", (msg_id,))
+            c.execute(f"UPDATE messages SET deleted_by_receiver=1 WHERE id={PLACEHOLDER}", (msg_id,))
             conn.commit()
     conn.close()
 

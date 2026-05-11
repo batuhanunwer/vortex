@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
-from project.database import db
+from project.database import db, PLACEHOLDER
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 import sqlite3
@@ -39,7 +39,7 @@ def login():
             conn = db()
             c = conn.cursor()
 
-            c.execute("SELECT * FROM users WHERE username = ?", (username,))
+            c.execute(f"SELECT * FROM users WHERE username = {PLACEHOLDER}", (username,))
             user = c.fetchone()
 
             conn.close()
@@ -98,7 +98,7 @@ def register():
             c = conn.cursor()
 
             c.execute(
-                "INSERT INTO users (username, password) VALUES (?, ?)",
+                f"INSERT INTO users (username, password) VALUES ({PLACEHOLDER}, {PLACEHOLDER})",
                 (username, hashed_password)
             )
 

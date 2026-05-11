@@ -15,7 +15,7 @@ from project.config import (
     PERMANENT_SESSION_LIFETIME,
     DEBUG,
 )
-from project.database import db_kur
+from project.database import db, PLACEHOLDER_kur, PLACEHOLDER
 
 from project.routes.auth import auth_bp
 from project.routes.dashboard import dashboard_bp
@@ -46,10 +46,10 @@ def _session_defaults():
 @app.context_processor
 def inject_unread():
     if "user" in session:
-        from project.database import db
+        from project.database import db, PLACEHOLDER
         conn = db()
         c = conn.cursor()
-        c.execute("SELECT COUNT(*) as c FROM messages WHERE receiver=? AND is_read=0", (session["user"],))
+        c.execute(f"SELECT COUNT(*) as c FROM messages WHERE receiver={PLACEHOLDER} AND is_read=0", (session["user"],))
         count = c.fetchone()["c"]
         conn.close()
         return dict(msg_count=count)
