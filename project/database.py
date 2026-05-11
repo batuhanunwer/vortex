@@ -84,8 +84,10 @@ def db_kur():
         "CREATE INDEX IF NOT EXISTS idx_vlt_u ON vault(user_name)"
     ]
     for sql in indices:
-        try: c.execute(sql)
-        except: pass
+        try:
+            c.execute(sql)
+        except Exception:
+            pass
         
     if not DATABASE_URL:
         conn.commit()
