@@ -21,7 +21,7 @@ from flask import (
 from functools import wraps
 
 from project.config import VAULT_PASSPHRASE
-from project.database import db, PLACEHOLDER
+from project.database import db
 
 vault_bp = Blueprint("vault", __name__)
 
@@ -106,10 +106,10 @@ def vault():
             try:
                 if v_id:
                     c.execute(
-                        f"""
+                        """
                         UPDATE vault
-                        SET title={PLACEHOLDER}, secret_data={PLACEHOLDER}
-                        WHERE id={PLACEHOLDER} AND user_name={PLACEHOLDER}
+                        SET title=?, secret_data=?
+                        WHERE id=? AND user_name=?
                         """,
                         (title, encrypted_secret, v_id, session["user"]),
                     )
@@ -119,9 +119,9 @@ def vault():
                         flash("Gizli veri güncellendi!", "success")
                 else:
                     c.execute(
-                        f"""
+                        """
                         INSERT INTO vault (user_name, title, secret_data)
-                        VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER})
+                        VALUES (?, ?, ?)
                         """,
                         (session["user"], title, encrypted_secret),
                     )
@@ -139,7 +139,7 @@ def vault():
             return redirect(url_for("vault.vault"))
 
         c.execute(
-            f"SELECT id, title, user, created_at FROM vault WHERE user_name={PLACEHOLDER} ORDER BY id DESC",
+            "SELECT id, title, user, created_at FROM vault WHERE user_name=? ORDER BY id DESC",
             (session["user"],),
         )
 
@@ -147,7 +147,7 @@ def vault():
 
         for item in items:
             c.execute(
-                f"SELECT secret_data FROM vault WHERE id={PLACEHOLDER} AND user_name={PLACEHOLDER}",
+                "SELECT secret_data FROM vault WHERE id=? AND user_name=?",
                 (item["id"], session["user"]),
             )
             encrypted = c.fetchone()
@@ -180,7 +180,7 @@ def vault_view(vault_id):
         c = conn.cursor()
 
         c.execute(
-            f"SELECT * FROM vault WHERE id={PLACEHOLDER} AND user_name={PLACEHOLDER}",
+            "SELECT * FROM vault WHERE id=? AND user_name=?",
             (vault_id, session["user"]),
         )
 
@@ -216,7 +216,7 @@ def vault_delete(vault_id):
         c = conn.cursor()
 
         c.execute(
-            f"SELECT user FROM vault WHERE id={PLACEHOLDER}",
+            "SELECT user FROM vault WHERE id=?",
             (vault_id,),
         )
 
@@ -231,7 +231,7 @@ def vault_delete(vault_id):
             abort(403)
 
         c.execute(
-            f"DELETE FROM vault WHERE id={PLACEHOLDER} AND user_name={PLACEHOLDER}",
+            "DELETE FROM vault WHERE id=? AND user_name=?",
             (vault_id, session["user"]),
         )
 
@@ -255,7 +255,7 @@ def vault_export():
         c = conn.cursor()
 
         c.execute(
-            f"SELECT * FROM vault WHERE user_name={PLACEHOLDER}",
+            "SELECT * FROM vault WHERE user_name=?",
             (session["user"],),
         )
 
@@ -279,4 +279,5 @@ def vault_export():
         flash("Vault dış aktarılırken hata oluştu!", "danger")
         print(f"Vault export error: {e}")
         return redirect(url_for("vault.vault"))
+
 

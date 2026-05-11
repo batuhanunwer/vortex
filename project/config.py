@@ -21,3 +21,4 @@ PERMANENT_SESSION_LIFETIME = timedelta(days=7)
 
 DEBUG = FLASK_ENV == "development"
 
+

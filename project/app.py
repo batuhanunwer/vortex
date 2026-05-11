@@ -15,7 +15,7 @@ from project.config import (
     PERMANENT_SESSION_LIFETIME,
     DEBUG,
 )
-from project.database import db, db_kur, PLACEHOLDER
+from project.database import db, db_kur
 
 from project.routes.auth import auth_bp
 from project.routes.dashboard import dashboard_bp
@@ -46,10 +46,10 @@ def _session_defaults():
 @app.context_processor
 def inject_unread():
     if "user" in session:
-        from project.database import db, PLACEHOLDER
+        from project.database import db
         conn = db()
         c = conn.cursor()
-        c.execute(f"SELECT COUNT(*) as c FROM messages WHERE receiver={PLACEHOLDER} AND is_read=0", (session["user"],))
+        c.execute("SELECT COUNT(*) as c FROM messages WHERE receiver=? AND is_read=0", (session["user"],))
         count = c.fetchone()["c"]
         conn.close()
         return dict(msg_count=count)
@@ -71,4 +71,5 @@ app.register_blueprint(admin_bp)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     socketio.run(app, host="0.0.0.0", port=port, debug=DEBUG, allow_unsafe_werkzeug=True)
+
 

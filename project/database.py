@@ -56,7 +56,7 @@ def db_kur():
 
     # Tablo Oluşturma SQL'leri
     tables = [
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS users (
             id {pk_auto},
             username {text_type} UNIQUE NOT NULL,
@@ -69,7 +69,7 @@ def db_kur():
             last_seen {text_type} DEFAULT 'Yakın zamanda'
         )
         """,
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS messages (
             id {pk_auto},
             sender {text_type} NOT NULL,
@@ -84,7 +84,7 @@ def db_kur():
             attachment {text_type}
         )
         """,
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS rooms (
             id {pk_auto},
             room_name {text_type} NOT NULL UNIQUE,
@@ -92,7 +92,7 @@ def db_kur():
             description {text_type} DEFAULT ''
         )
         """,
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS room_members (
             id {pk_auto},
             room_id INTEGER NOT NULL,
@@ -101,7 +101,7 @@ def db_kur():
             UNIQUE(room_id, username)
         )
         """,
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS room_messages (
             id {pk_auto},
             room_id INTEGER NOT NULL,
@@ -112,7 +112,7 @@ def db_kur():
             edited_at {text_type}
         )
         """,
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS vault (
             id {pk_auto},
             user_name {text_type} NOT NULL,
@@ -121,7 +121,7 @@ def db_kur():
             created_at TIMESTAMP DEFAULT {ts_default}
         )
         """,
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS announcements (
             id {pk_auto},
             content {text_type} NOT NULL,
@@ -129,7 +129,7 @@ def db_kur():
             created_at TIMESTAMP DEFAULT {ts_default}
         )
         """,
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS admin_logs (
             id {pk_auto},
             admin_user {text_type} NOT NULL,
@@ -163,4 +163,5 @@ def db_kur():
     
     conn.close()
     print(f"Veritabanı hazır ({'PostgreSQL' if DATABASE_URL else 'SQLite'}).")
+
 
