@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Database
+users.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Static/Uploads
+static/uploads/*
+!static/uploads/default.png
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db

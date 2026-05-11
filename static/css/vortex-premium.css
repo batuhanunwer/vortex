@@ -1,0 +1,126 @@
+/* Vortex Premium UI Styles */
+
+:root {
+    --vortex-blue: #3b82f6;
+    --vortex-blue-dark: #2563ea;
+    --vortex-purple: #8b5cf6;
+    --vortex-bg: #0f172a;
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Global Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Toast Container */
+#vortex-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.vortex-toast {
+    min-width: 300px;
+    max-width: 400px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 16px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    pointer-events: auto;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.vortex-toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--vortex-blue);
+    width: 100%;
+    animation: toastProgress 5s linear forwards;
+}
+
+@keyframes toastProgress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+.vortex-toast.toast-success { border-left: 4px solid #10b981; }
+.vortex-toast.toast-success i { color: #10b981; }
+.vortex-toast.toast-success::after { background: #10b981; }
+
+.vortex-toast.toast-danger { border-left: 4px solid #ef4444; }
+.vortex-toast.toast-danger i { color: #ef4444; }
+.vortex-toast.toast-danger::after { background: #ef4444; }
+
+.vortex-toast.toast-info { border-left: 4px solid var(--vortex-blue); }
+.vortex-toast.toast-info i { color: var(--vortex-blue); }
+
+.vortex-toast.hiding {
+    animation: slideOutRight 0.4s ease forwards;
+}
+
+.vortex-toast-icon {
+    font-size: 1.25rem;
+}
+
+.vortex-toast-content {
+    flex: 1;
+}
+
+.vortex-toast-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.vortex-toast-msg {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+/* Micro-interactions */
+.btn-premium {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-premium:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-premium:active {
+    transform: translateY(0) scale(0.98);
+}

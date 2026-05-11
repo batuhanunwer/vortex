@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gruplar - Vortex</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/vortex-premium.css') }}" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: linear-gradient(rgba(11, 22, 59, 0.8), rgba(3, 5, 11, 0.98)), url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-attachment: fixed; background-position: center;
+            color: white;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .navbar {
+            background: rgba(4, 8, 20, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: #94a3b8 !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: #3b82f6 !important;
+        }
+
+        .container-wrapper {
+            padding: 2rem 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .alert {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-outline-light {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #94a3b8;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        /* Stats Box */
+        .stats-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-item h6 {
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .stat-item .number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #3b82f6;
+        }
+
+        /* Create Group Card */
+        .create-group-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .create-group-card h5 {
+            color: #3b82f6;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: rgba(0, 0, 0, 0.7);
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: #64748b;
+        }
+
+        .create-form {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .create-form input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Search & Filter */
+        .filter-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-section h6 {
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .search-box input {
+            padding-left: 2.5rem;
+        }
+
+        /* Groups Section */
+        .groups-section {
+            margin-top: 2rem;
+        }
+
+        .groups-section h5 {
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Group Card */
+        .group-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .group-card:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateX(8px);
+        }
+
+        .group-info {
+            flex: 1;
+        }
+
+        .group-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .group-creator {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .group-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .group-stat {
+            font-size: 0.85rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn-join {
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-join:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+        }
+
+        .empty-state .btn-primary {
+            margin-top: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container-wrapper {
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .create-form {
+                flex-direction: column;
+            }
+
+            .create-form input,
+            .create-form button {
+                width: 100%;
+            }
+
+            .group-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .group-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .btn-join,
+            .btn-delete {
+                flex: 1;
+            }
+
+            .stats-box {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-box {
+                grid-template-columns: 1fr;
+            }
+
+            .group-name {
+                font-size: 1rem;
+            }
+
+            .group-stats {
+                gap: 1rem;
+            }
+
+            .btn-join,
+            .btn-delete {
+                font-size: 0.8rem;
+                padding: 0.6rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-cube"></i> VORTEX
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/messages">Mesajlar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/groups">Gruplar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('vault.vault') }}">Kasa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.profile') }}">Profil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Çıkış</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-wrapper">
+        <!-- Flash Messages -->
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1><i class="fas fa-users"></i> GRUPLARIM</h1>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-box">
+            <div class="stat-item">
+                <h6><i class="fas fa-users"></i> Toplam Gruplar</h6>
+                <div class="number">{{ groups|length }}</div>
+            </div>
+            <div class="stat-item">
+                <h6><i class="fas fa-crown"></i> Yönettiğim</h6>
+                <div class="number">{{ groups|selectattr('creator', 'equalto', session['user'])|list|length }}</div>
+            </div>
+            <div class="stat-item">
+                <h6><i class="fas fa-user-plus"></i> Üyesi Olduğum</h6>
+                <div class="number">{{ groups|rejectattr('creator', 'equalto', session['user'])|list|length }}</div>
+            </div>
+        </div>
+
+        <!-- Create Group Card -->
+        <div class="create-group-card">
+            <h5>
+                <i class="fas fa-plus-circle"></i> YENİ GRUP OLUŞTUR
+            </h5>
+            <form method="POST" class="create-form">
+                <input type="text" name="room_name" class="form-control"
+                    placeholder="Grup ismi... (örn: Yazılım Geliştirme)" required autocomplete="off" minlength="3"
+                    maxlength="50">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check"></i> OLUŞTUR
+                </button>
+            </form>
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i>
+                Grup adı 3-50 karakter olmalıdır. Grubu oluşturduğunuzda otomatik olarak üye olacaksınız.
+            </small>
+        </div>
+
+        <!-- Search & Filter -->
+        {% if groups %}
+        <div class="filter-section">
+            <h6><i class="fas fa-filter"></i> FİLTRELE</h6>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" class="form-control" id="groupSearch" placeholder="Grup adı ile ara..."
+                    onkeyup="filterGroups()">
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Groups List -->
+        <div class="groups-section">
+            <h5>
+                <i class="fas fa-comments"></i>
+                {% if groups %}
+                SÖHBETİNİZ ODALARINIZ
+                {% else %}
+                GRUP BULUNAMADI
+                {% endif %}
+            </h5>
+
+            {% if groups %}
+            <div id="groupsContainer">
+                {% for group in groups %}
+                <div class="group-card" data-group-name="{{ group.room_name|lower }}"
+                    data-group-creator="{{ group.creator|lower }}">
+                    <div class="group-info">
+                        <div class="group-name">
+                            <i class="fas fa-hashtag"></i>
+                            {{ group.room_name }}
+                            {% if group.creator == session['user'] %}
+                            <span class="badge"
+                                style="background: rgba(251, 191, 36, 0.2); color: #fcd34d; font-size: 0.7rem; margin-left: auto;">
+                                <i class="fas fa-crown"></i> KURUCU
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="group-creator">
+                            <i class="fas fa-user"></i>
+                            Kurucu: <strong>@{{ group.creator }}</strong>
+                        </div>
+                        <div class="group-stats">
+                            {% if group.get('member_count') %}
+                            <div class="group-stat">
+                                <i class="fas fa-users"></i>
+                                {{ group.member_count }} üye
+                            </div>
+                            {% endif %}
+                            {% if group.get('created_at') %}
+                            <div class="group-stat">
+                                <i class="fas fa-calendar"></i>
+                                {{ group.created_at }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="group-actions">
+                        <a href="/group/{{ group.id }}" class="btn-join">
+                            <i class="fas fa-sign-in-alt"></i> GIRIŞ
+                        </a>
+                        {% if group.creator == session['user'] %}
+                        <form method="POST" action="/delete_group/{{ group.id }}" style="display: inline;"
+                            onsubmit="return confirm('Bu grubu silmek istediğinizden emin misiniz?');">
+                            <button type="submit" class="btn-delete" title="Grubu sil">
+                                <i class="fas fa-trash"></i> SİL
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p class="fs-5 fw-bold">Henüz Grubunuz Yok</p>
+                <p class="text-muted">Yukarıda yeni bir grup oluşturarak başlayın!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Filter Groups
+        function filterGroups() {
+            const searchInput = document.getElementById('groupSearch').value.toLowerCase();
+            const groupCards = document.querySelectorAll('.group-card');
+
+            groupCards.forEach(card => {
+                const groupName = card.getAttribute('data-group-name');
+                const groupCreator = card.getAttribute('data-group-creator');
+
+                if (
+                    groupName.includes(searchInput) ||
+                    groupCreator.includes(searchInput)
+                ) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show empty state if no groups found
+            const visibleCards = Array.from(groupCards).filter(card => card.style.display !== 'none');
+            if (visibleCards.length === 0 && searchInput.length > 0) {
+                console.log('No groups found');
+            }
+        }
+
+        // Auto-dismiss alerts
+        document.querySelectorAll('.alert').forEach(alert => {
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+
+        // Auto-focus on group name input
+        document.querySelector('input[name="room_name"]')?.focus();
+    </script>
+    <div id="vortex-toast-container"></div>
+    <script src="{{ url_for('static', filename='js/vortex-core.js') }}"></script>
+    <script>
+        window.onload = () => {
+            {% with messages_flash = get_flashed_messages(with_categories=true) %}
+                {% if messages_flash %}
+                    {% for category, message in messages_flash %}
+                        Vortex.toast("{{ message }}", "{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }}");
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        };
+    </script>
+</body>
+
+</html>

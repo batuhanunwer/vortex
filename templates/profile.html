@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Vortex</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/vortex-premium.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background-image: linear-gradient(rgba(11, 22, 59, 0.9), rgba(3, 5, 11, 0.98)), url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop'); 
+            background-size: cover; 
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(4, 8, 20, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem 0;
+        }
+
+        .container-wrapper {
+            padding: 120px 20px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .profile-glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar-lg {
+            width: 150px;
+            height: 150px;
+            border-radius: 30px;
+            object-fit: cover;
+            border: 4px solid var(--vortex-blue);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--vortex-blue);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .form-label {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .form-control {
+            background: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            border-radius: 12px;
+            padding: 12px 15px;
+        }
+
+        .form-control:focus {
+            border-color: var(--vortex-blue) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, var(--vortex-blue), var(--vortex-blue-dark));
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .container-wrapper { padding-top: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="{{ url_for('dashboard.dashboard') }}">
+                <i class="fas fa-cube text-primary me-2"></i> VORTEX
+            </a>
+            <div class="ms-auto">
+                <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                    <i class="fas fa-arrow-left me-1"></i> Geri Dön
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-wrapper animate-on-scroll">
+        <div class="profile-glass-card">
+            <div class="profile-header">
+                <div class="avatar-container">
+                    <img src="{{ url_for('static', filename='uploads/' + (u.profile_pic or 'default.png')) }}" class="avatar-lg" alt="Avatar">
+                </div>
+                <div class="profile-info">
+                    <h1 class="fw-black mb-1">@{{ u.username }}</h1>
+                    <p class="text-secondary mb-0">Üyelik Tarihi: {{ u.created_at[:10] if u.created_at else 'Bilinmiyor' }}</p>
+                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 mt-2 px-3 py-2 rounded-pill">
+                        <i class="fas fa-shield-alt me-1"></i> {{ u.role|upper }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value">{{ group_count }}</span>
+                    <span class="stat-label">Gruplar</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">{{ total_sent }}</span>
+                    <span class="stat-label">Mesajlar</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">{{ vault_count }}</span>
+                    <span class="stat-label">Kasa Öğeleri</span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h4 class="mb-4 fw-bold"><i class="fas fa-cog me-2 text-primary"></i> Ayarları Düzenle</h4>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Profil Fotoğrafı</label>
+                            <input type="file" name="profile_pic" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Yeni Şifre</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-update btn-premium">
+                        <i class="fas fa-save me-2"></i> Bilgileri Güncelle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="vortex-toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/vortex-core.js') }}"></script>
+    <script>
+        // Flash messages as Toasts
+        window.onload = () => {
+            {% with messages_flash = get_flashed_messages(with_categories=true) %}
+                {% if messages_flash %}
+                    {% for category, message in messages_flash %}
+                        Vortex.toast("{{ message }}", "{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }}");
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        };
+    </script>
+</body>
+</html>

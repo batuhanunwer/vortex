@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesajlar - Vortex</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/vortex-premium.css') }}" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: linear-gradient(rgba(11, 22, 59, 0.8), rgba(3, 5, 11, 0.98)), url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-attachment: fixed; background-position: center;
+            color: white;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(4, 8, 20, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: #94a3b8 !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: #3b82f6 !important;
+        }
+
+        .container-main {
+            display: flex;
+            width: 100%;
+            height: calc(100vh - 60px);
+            margin-top: 60px;
+            gap: 0;
+        }
+
+        .contacts-panel {
+            width: 320px;
+            background: rgba(9, 14, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .panel-header h5 {
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .panel-header a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .panel-header a:hover {
+            color: #3b82f6;
+        }
+
+        .search-box {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .search-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-label i {
+            font-size: 0.85rem;
+            color: #3b82f6;
+        }
+
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .search-input {
+            background: rgba(0, 0, 0, 0.5) !important;
+            border: 1px solid rgba(59, 130, 246, 0.2) !important;
+            color: white !important;
+            border-radius: 10px !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 0.85rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: #64748b !important;
+        }
+
+        .search-input:focus {
+            background: rgba(0, 0, 0, 0.7) !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
+            outline: none;
+        }
+
+        .btn-start-chat {
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-start-chat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .contacts-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .contacts-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .contacts-list::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 2px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .contact-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .contact-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-left: 3px solid #3b82f6;
+        }
+
+        .contact-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            margin-right: 0.75rem;
+        }
+
+        .initial-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: white;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+        }
+
+        .contact-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-status {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-image: linear-gradient(rgba(11, 22, 59, 0.8), rgba(3, 5, 11, 0.98)), url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-attachment: fixed; background-position: center;
+            min-width: 0;
+        }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(9, 14, 30, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-header-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #3b82f6;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .chat-header-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .chat-header-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .chat-header-btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .chat-header-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: white;
+        }
+
+        .msg-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .msg-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .msg-area::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .msg-area::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 3px;
+        }
+
+        .empty-chat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .empty-chat i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .bubble-wrapper {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.5rem;
+            max-width: 75%;
+        }
+
+        .bubble-wrapper.own {
+            align-self: flex-end;
+        }
+
+        .bubble-wrapper.other {
+            align-self: flex-start;
+        }
+
+        .bubble {
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            position: relative;
+            word-wrap: break-word;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .own .bubble {
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            color: white;
+            border-radius: 12px 3px 12px 12px;
+        }
+
+        .own .bubble:hover {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .other .bubble {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3px 12px 12px 12px;
+            color: #e2e8f0;
+        }
+
+        .other .bubble:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .msg-actions {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .own .msg-actions {
+            justify-content: flex-end;
+        }
+
+        .bubble-wrapper:hover .msg-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #93c5fd;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .action-btn.delete {
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: white;
+        }
+
+        .msg-status {
+            font-size: 0.7rem;
+            margin-top: 0.35rem;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .own .msg-status {
+            justify-content: flex-end;
+        }
+
+        .status-icon {
+            color: #10b981;
+            font-size: 0.75rem;
+        }
+
+        .edited-badge {
+            font-size: 0.65rem;
+            color: #fcd34d;
+            margin-left: 0.25rem;
+        }
+
+        .input-box {
+            padding: 1.5rem;
+            background: rgba(9, 14, 30, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-form {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff !important;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: none;
+            max-height: 100px;
+            min-height: 44px;
+        }
+
+        .message-input:focus {
+            background: rgba(0, 0, 0, 0.7);
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .message-input::placeholder {
+            color: #64748b;
+        }
+
+        .btn-send {
+            background: linear-gradient(to right, #3b82f6, #2563ea);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-send:active {
+            transform: translateY(0);
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .alert {
+            position: fixed;
+            top: 70px;
+            right: 1rem;
+            max-width: 300px;
+            z-index: 2000;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        @media (max-width: 768px) {
+            .container-main {
+                flex-direction: column;
+                height: calc(100vh - 60px);
+            }
+
+            .contacts-panel {
+                width: 100%;
+                height: auto;
+                max-height: 35%;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .chat-panel {
+                flex: 1;
+            }
+
+            .bubble-wrapper {
+                max-width: 90%;
+            }
+
+            .msg-area {
+                padding: 1rem;
+            }
+
+            .input-box {
+                padding: 1rem;
+            }
+
+            .chat-header-btn {
+                font-size: 0.75rem;
+                padding: 0.4rem 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .contacts-panel {
+                max-height: 30%;
+            }
+
+            .bubble-wrapper {
+                max-width: 95%;
+            }
+
+            .panel-header h5 {
+                font-size: 1rem;
+            }
+
+            .chat-header-title {
+                font-size: 1rem;
+            }
+
+            .input-form {
+                gap: 0.5rem;
+            }
+
+            .btn-send {
+                padding: 0.6rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% set default_avatar = url_for('static', filename='uploads/default.png') %}
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="{{ url_for('dashboard.dashboard') }}">
+                <i class="fas fa-cube"></i> VORTEX
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('messages.messages') }}">Mesajlar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('groups.groups_list') }}">Gruplar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('vault.vault') }}">Kasa</a>
+                    </li>
+                    {% if session.get('role') == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.admin') }}"><i class="fas fa-shield-alt"></i>
+                            Admin</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.profile') }}">Profil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Çıkış</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container-main animate-on-scroll">
+        <div class="contacts-panel">
+            <div class="panel-header">
+                <h5><i class="fas fa-envelope"></i> MESAJLAR</h5>
+                <a href="{{ url_for('dashboard.dashboard') }}">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+            </div>
+
+            <div class="search-box">
+                <div class="search-label">
+                    <i class="fas fa-search"></i> Kişi Ara
+                </div>
+                <form action="{{ url_for('messages.messages') }}" method="GET" class="search-container">
+                    <input type="text" name="search_user" class="form-control search-input"
+                        placeholder="Kullanıcı adı..." required autocomplete="off" maxlength="20"
+                        pattern="[a-zA-Z0-9_]{3,20}" title="3–20 karakter: harf, rakam, _">
+                    <button type="submit" class="btn-start-chat">
+                        <i class="fas fa-paper-plane"></i> SOHBETİ BAŞLAT
+                    </button>
+                </form>
+            </div>
+
+            <div class="contacts-list">
+                {% if contacts %}
+                {% for contact in contacts %}
+                {% set pic = contact.pic or 'default.png' %}
+                {% set avatar_url = url_for('static', filename='uploads/' + pic) %}
+                <a href="{{ url_for('messages.messages', chat_user=contact.contact) }}"
+                    class="contact-item {% if chat_user == contact.contact %}active{% endif %}">
+                    {% if pic == 'default.png' %}
+                        <div class="contact-avatar initial-avatar">
+                            {{ contact.contact[0]|upper }}
+                        </div>
+                    {% else %}
+                        <img src="{{ avatar_url }}" class="contact-avatar" alt="{{ contact.contact }}">
+                    {% endif %}
+                    <div class="contact-info">
+                        <div class="contact-name">@{{ contact.contact }}</div>
+                        <div class="contact-status js-status-indicator" data-username="{{ contact.contact }}">
+                            <span class="status-offline"><i class="fas fa-circle" style="color:#64748b; font-size:0.6rem;"></i> 
+                                {% if contact.last_seen %} Son görülme: {{ contact.last_seen }} {% else %} Özel mesaj {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div style="padding: 2rem; text-align: center; color: #64748b;">
+                    <i class="fas fa-inbox"
+                        style="font-size: 2rem; opacity: 0.3; display: block; margin-bottom: 1rem;"></i>
+                    <p>Henüz sohbet yok</p>
+                    <small>Yukarıdan kullanıcı ara</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="chat-panel">
+            {% if chat_user %}
+            <div class="chat-header">
+                <div>
+                    <div class="chat-header-title">
+                        <i class="fas fa-user-circle"></i> @{{ chat_user }}
+                    </div>
+                    <div id="chatHeaderStatus" style="margin-top: 4px;"></div>
+                </div>
+                <div class="chat-header-actions">
+                    <button type="button" id="startCallBtn" class="chat-header-btn" title="Görüntülü Arama Başlat">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <a href="{{ url_for('messages.archive') }}" class="chat-header-btn">
+                        <i class="fas fa-archive"></i>
+                    </a>
+                    <form method="POST" action="{{ url_for('messages.delete_chat', chat_user=chat_user) }}"
+                        class="js-confirm-form"
+                        data-confirm="Bu sohbeti kendi görünümünüzden silmek istediğinize emin misiniz?"
+                        style="display: inline;">
+                        <button type="submit" class="chat-header-btn danger">
+                            <i class="fas fa-trash"></i> Sil
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="msg-area" id="messagesBox">
+                {% if history %}
+                {% for m in history %}
+                <div class="bubble-wrapper {% if m.sender == session['user'] %}own{% else %}other{% endif %}">
+                    <div class="msg-actions">
+                        {% if m.sender == session['user'] %}
+                        <button type="button" class="action-btn js-edit-msg" data-msg-id="{{ m.id }}"
+                            title="Düzenle">
+                            <i class="fas fa-edit"></i> Düzenle
+                        </button>
+                        <form method="POST" action="{{ url_for('messages.delete_message', msg_id=m.id) }}"
+                            class="js-confirm-form" data-confirm="Bu mesajı silmek istediğinize emin misiniz?"
+                            style="display: inline;">
+                            <button type="submit" class="action-btn delete" title="Sil">
+                                <i class="fas fa-trash"></i> Sil
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="bubble js-bubble-text">
+                        <div class="message-content">
+                            {% if m.attachment %}
+                                <a href="{{ url_for('static', filename='uploads/' + m.attachment) }}" target="_blank">
+                                    <img src="{{ url_for('static', filename='uploads/' + m.attachment) }}" alt="Media" style="max-height: 200px; border-radius: 10px; margin-bottom: 5px;">
+                                </a><br>
+                            {% endif %}
+                            {% if m.content.startswith('[VOICE]') %}
+                                <audio controls style="max-height:45px;">
+                                    <source src="{{ url_for('static', filename='uploads/' + m.content[7:]) }}" type="audio/webm">
+                                </audio>
+                            {% else %}
+                                {{ m.content }}
+                            {% endif %}
+                            
+                            <div class="message-meta">
+                                <span>{{ m.timestamp }}</span>
+                                {% if m.edited %}
+                                <span class="edited-badge"><i class="fas fa-pencil-alt"></i> Düzenlendi</span>
+                                {% endif %}
+                                {% if m.sender == session['user'] %}
+                                <span class="status-icon">
+                                    {% if m.is_read %}
+                                    <i class="fas fa-check-double" title="Okundu"></i>
+                                    {% else %}
+                                    <i class="fas fa-check" title="İletildi"></i>
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="empty-chat">
+                    <i class="fas fa-comments"></i>
+                    <p class="fs-5 fw-bold">Sohbet Boş</p>
+                    <small class="text-muted">İlk mesajı siz gönderin.</small>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="input-box">
+                <form method="POST" action="{{ url_for('messages.messages', chat_user=chat_user) }}" class="input-form"
+                    id="messageForm">
+                    <input type="hidden" name="edit_id" id="editId" value="">
+                    <input type="hidden" name="receiver" value="{{ chat_user }}">
+                    <textarea name="content" id="messageInput" class="form-control message-input"
+                        placeholder="Mesaj yazın... (Enter: gönder, Shift+Enter: satır)" required autocomplete="off"
+                        rows="1" maxlength="5000"></textarea>
+                    <input type="file" id="mediaInput" style="display:none;" accept="image/*">
+                    <button type="button" class="btn btn-cancel" onclick="document.getElementById('mediaInput').click()">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger shadow-sm rounded-circle d-flex align-items-center justify-content-center" id="voiceBtn" style="width: 44px; height: 44px; margin-left: 0.5rem; transition:0.3s;" title="Ses Kaydı Gönder">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button type="submit" class="btn btn-send" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span class="d-none d-sm-inline">GÖNDER</span>
+                    </button>
+                    <button type="button" class="btn btn-cancel d-none" id="cancelEditBtn">
+                        <i class="fas fa-times"></i> İptal
+                    </button>
+                </form>
+            </div>
+            {% else %}
+            <div class="empty-chat">
+                <i class="fas fa-inbox"></i>
+                <p class="fs-5 fw-bold">Bir Sohbet Seçin</p>
+                <small class="text-muted">Soldan seçin veya yeni kullanıcı arayın.</small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+    const socket = io();
+    const chatUser = "{{ chat_user }}";
+    const myUser = "{{ session['user'] }}";
+
+    socket.emit('get_online_users', (users) => {
+        if(users && Array.isArray(users)) {
+            users.forEach(u => updatePresence(u, 'online', 'Çevrimiçi'));
+        }
+    });
+
+    socket.on('presence', function(data) {
+        updatePresence(data.user, data.status, data.last_seen);
+    });
+
+    function updatePresence(user, status, lastSeen) {
+        document.querySelectorAll('.js-status-indicator[data-username="' + user + '"]').forEach(ind => {
+            if(status === 'online') {
+                ind.innerHTML = '<span style="color:#10b981; font-weight:600;"><i class="fas fa-circle" style="font-size:0.6rem;"></i> Çevrimiçi</span>';
+            } else {
+                ind.innerHTML = '<span class="status-offline"><i class="fas fa-circle" style="color:#64748b; font-size:0.6rem;"></i> Son görülme: ' + (lastSeen || 'Bilinmiyor') + '</span>';
+            }
+        });
+        if (user === chatUser) {
+            const headStatus = document.getElementById('chatHeaderStatus');
+            if (headStatus) {
+                if(status === 'online') headStatus.innerHTML = '<span style="color:#10b981; font-size:0.8rem; font-weight:600;"><i class="fas fa-circle" style="font-size:0.6rem;"></i> Çevrimiçi</span>';
+                else headStatus.innerHTML = '<span style="color:#94a3b8; font-size:0.8rem;">Son görülme: ' + (lastSeen || 'Bilinmiyor') + '</span>';
+            }
+        }
+    }
+
+    socket.on('new_message', function(msg) {
+        if((msg.sender === myUser && msg.receiver === chatUser) || (msg.sender === chatUser && msg.receiver === myUser)) {
+            const wrapper = document.createElement('div');
+            const isMe = (msg.sender === myUser);
+            wrapper.className = "bubble-wrapper " + (isMe ? "own" : "other");
+            
+            let attachmentHtml = '';
+            if (msg.attachment) {
+                attachmentHtml = `<a href="${msg.attachment}" target="_blank">
+                                    <img src="${msg.attachment}" alt="Media" style="max-height: 200px; border-radius: 10px; margin-bottom: 5px;">
+                                  </a><br>`;
+            }
+
+            let msgContentHtml = msg.content;
+            if(msg.content.startsWith('[VOICE]')) {
+                const fname = msg.content.substring(7);
+                msgContentHtml = `<audio controls style="max-height:45px;"><source src="/static/uploads/${fname}" type="audio/webm"></audio>`;
+            }
+
+            wrapper.innerHTML = `
+                <div class="msg-actions"></div>
+                <div class="bubble js-bubble-text">
+                    <div class="message-content">
+                        ${attachmentHtml}
+                        ${msgContentHtml}
+                        <div class="message-meta">
+                            <span class="message-time">${msg.timestamp}</span>
+                            ${isMe ? '<span class="status-icon"><i class="fas fa-check" title="İletildi"></i></span>' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            const box = document.getElementById('messagesBox');
+            if(box) {
+                box.appendChild(wrapper);
+                box.scrollTop = box.scrollHeight;
+            }
+            if(msg.sender === chatUser) {
+                socket.emit('mark_read', {sender: chatUser});
+            }
+        }
+    });
+
+    socket.on('messages_read', function(data) {
+        if(data.reader === chatUser) {
+            document.querySelectorAll('.status-icon').forEach(function(icon) {
+                icon.innerHTML = '<i class="fas fa-check-double" title="Okundu"></i>';
+            });
+        }
+    });
+
+    socket.on('message_deleted', function(data) {
+        location.reload();
+    });
+
+    window.onload = () => {
+        const inp = document.getElementById('messageInput');
+        if(inp) inp.focus();
+
+        if(document.getElementById('mediaInput')) {
+            document.getElementById('mediaInput').addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if(!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const res = await fetch('/upload_chat_media', { method: 'POST', body: formData });
+                    const data = await res.json();
+                    
+                    if (data.url) {
+                        socket.emit('private_message', {
+                            receiver: chatUser,
+                            content: 'Media attachment',
+                            attachment_url: data.url,
+                            attachment_filename: data.filename
+                        });
+                    }
+                } catch (error) {
+                    console.error("Upload error", error);
+                }
+                e.target.value = ''; 
+            });
+        }
+
+        // Voice Recorder Logic
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        const voiceBtn = document.getElementById('voiceBtn');
+
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', async () => {
+                if (!isRecording) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        mediaRecorder = new MediaRecorder(stream);
+                        audioChunks = [];
+
+                        mediaRecorder.addEventListener("dataavailable", event => {
+                            audioChunks.push(event.data);
+                        });
+
+                        mediaRecorder.addEventListener("stop", async () => {
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                            const formData = new FormData();
+                            formData.append('voice', audioBlob, 'voice.webm');
+                            
+                            try {
+                                const res = await fetch('/upload_voice', { method: 'POST', body: formData });
+                                const data = await res.json();
+                                if (data.filename) {
+                                    socket.emit('private_message', {
+                                        receiver: chatUser,
+                                        content: '[VOICE]' + data.filename
+                                    });
+                                }
+                            } catch (err) {
+                                console.error('Voice upload err:', err);
+                            }
+                        });
+
+                        mediaRecorder.start();
+                        isRecording = true;
+                        voiceBtn.classList.remove('btn-outline-danger');
+                        voiceBtn.classList.add('btn-danger', 'pulse-animation');
+                        voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                    } catch (err) {
+                        alert('Mikrofon erişimi sağlanamadı.');
+                    }
+                } else {
+                    mediaRecorder.stop();
+                    if(mediaRecorder.stream) {
+                        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    }
+                    isRecording = false;
+                    voiceBtn.classList.remove('btn-danger', 'pulse-animation');
+                    voiceBtn.classList.add('btn-outline-danger');
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                }
+            });
+        }
+    };    
+        function scrollToBottom() {
+            var box = document.getElementById('messagesBox');
+            if (!box) return;
+            setTimeout(function () {
+                box.scrollTop = box.scrollHeight;
+            }, 50);
+        }
+
+        window.addEventListener('load', scrollToBottom);
+
+        function editMessage(id, content) {
+            var editId = document.getElementById('editId');
+            var input = document.getElementById('messageInput');
+            var sendBtn = document.getElementById('sendBtn');
+            var cancelBtn = document.getElementById('cancelEditBtn');
+            if (!editId || !input || !sendBtn || !cancelBtn) return;
+            editId.value = id;
+            input.value = content;
+            input.focus();
+            sendBtn.innerHTML = '<i class="fas fa-check"></i> <span class="d-none d-sm-inline">GÜNCELLE</span>';
+            cancelBtn.classList.remove('d-none');
+        }
+
+        function cancelEditMode() {
+            var editId = document.getElementById('editId');
+            var input = document.getElementById('messageInput');
+            var sendBtn = document.getElementById('sendBtn');
+            var cancelBtn = document.getElementById('cancelEditBtn');
+            if (editId) editId.value = '';
+            if (input) input.value = '';
+            if (sendBtn) sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span class="d-none d-sm-inline">GÖNDER</span>';
+            if (cancelBtn) cancelBtn.classList.add('d-none');
+        }
+
+        document.querySelectorAll('.js-edit-msg').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var wrap = btn.closest('.bubble-wrapper');
+                var bubble = wrap ? wrap.querySelector('.js-bubble-text') : null;
+                var text = bubble ? bubble.textContent : '';
+                var id = btn.getAttribute('data-msg-id');
+                editMessage(id, text);
+            });
+        });
+
+        var cancelEditBtn = document.getElementById('cancelEditBtn');
+        if (cancelEditBtn) {
+            cancelEditBtn.addEventListener('click', cancelEditMode);
+        }
+
+        var messageForm = document.getElementById('messageForm');
+        var textarea = document.getElementById('messageInput');
+
+        if (messageForm) {
+            messageForm.addEventListener('submit', function (e) {
+                var editId = document.getElementById('editId');
+                
+                if (!editId || !editId.value) {
+                    e.preventDefault();
+                    if (textarea && textarea.value.trim() !== '') {
+                        socket.emit('private_message', { receiver: chatUser, content: textarea.value });
+                        textarea.value = '';
+                        textarea.style.height = 'auto';
+                    }
+                }
+                scrollToBottom();
+            });
+        }
+
+        if (textarea) {
+            textarea.addEventListener('input', function () {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            });
+            textarea.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    var f = document.getElementById('messageForm');
+                    if (f) f.requestSubmit();
+                }
+            });
+            textarea.focus();
+        }
+
+        document.querySelectorAll('.js-confirm-form').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                var msg = form.getAttribute('data-confirm') || 'Emin misiniz?';
+                if (!window.confirm(msg)) e.preventDefault();
+            });
+        });
+
+        document.querySelectorAll('.alert').forEach(function (alert) {
+            setTimeout(function () {
+                try {
+                    bootstrap.Alert.getOrCreateInstance(alert).close();
+                } catch (e) { }
+            }, 5000);
+        });
+    
+    // -- WebRTC Video Calling Logic --
+    let peerConnection;
+    let localStream;
+    let screenStream = null;
+    const config = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] };
+    let isCaller = false;
+    let activeCaller = null;
+
+    const startCallBtn = document.getElementById('startCallBtn');
+    const incomingCallModal = document.getElementById('incomingCallModal');
+    const activeCallHUD = document.getElementById('activeCallHUD');
+    const callerNameText = document.getElementById('callerNameText');
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const acceptCallBtn = document.getElementById('acceptCallBtn');
+    const rejectCallBtn = document.getElementById('rejectCallBtn');
+    const endCallBtn = document.getElementById('endCallBtn');
+    const muteMicBtn = document.getElementById('muteMicBtn');
+    const videoToggleBtn = document.getElementById('videoToggleBtn');
+    const screenShareBtn = document.getElementById('screenShareBtn');
+
+    if(startCallBtn && chatUser) {
+        startCallBtn.addEventListener('click', async () => {
+            isCaller = true;
+            activeCaller = chatUser;
+            activeCallHUD.style.display = 'flex';
+            try { await setupLocalStream(); } catch(e) { activeCallHUD.style.display='none'; return; }
+            peerConnection = new RTCPeerConnection(config);
+            setupPeerConnection();
+            
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            
+            socket.emit('webrtc_offer', { target: activeCaller, offer: offer });
+        });
+    }
+
+    socket.on('webrtc_offer', async (data) => {
+        activeCaller = data.sender;
+        if(callerNameText) callerNameText.innerHTML = `@${activeCaller} Arıyor...`;
+        if(incomingCallModal) incomingCallModal.style.display = 'flex';
+        window.pendingOffer = data.offer;
+    });
+
+    if(acceptCallBtn) {
+        acceptCallBtn.addEventListener('click', async () => {
+            incomingCallModal.style.display = 'none';
+            activeCallHUD.style.display = 'flex';
+            isCaller = false;
+            
+            try { await setupLocalStream(); } catch(e) { activeCallHUD.style.display='none'; return; }
+            peerConnection = new RTCPeerConnection(config);
+            setupPeerConnection();
+            
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(window.pendingOffer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            
+            socket.emit('webrtc_answer', { target: activeCaller, answer: answer });
+        });
+    }
+
+    if(rejectCallBtn) {
+        rejectCallBtn.addEventListener('click', () => {
+            incomingCallModal.style.display = 'none';
+            socket.emit('webrtc_end', { target: activeCaller });
+        });
+    }
+
+    socket.on('webrtc_answer', async (data) => {
+        if(peerConnection) {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+        }
+    });
+
+    socket.on('webrtc_ice_candidate', async (data) => {
+        try {
+            if(peerConnection) await peerConnection.addIceCandidate(data.candidate);
+        } catch (e) { console.error(e); }
+    });
+
+    socket.on('webrtc_end', () => {
+        endCall();
+    });
+
+    function setupPeerConnection() {
+        peerConnection.onicecandidate = (event) => {
+            if(event.candidate) {
+                socket.emit('webrtc_ice_candidate', { target: activeCaller, candidate: event.candidate });
+            }
+        };
+        peerConnection.ontrack = (event) => {
+            if(remoteVideo) remoteVideo.srcObject = event.streams[0];
+        };
+    }
+
+    async function setupLocalStream() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            if(localVideo) localVideo.srcObject = localStream;
+        } catch(err) {
+            console.warn("Video & Audio failed, trying Audio only...");
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                if(localVideo) localVideo.srcObject = localStream;
+            } catch(e2) {
+                alert("Uyarı: Sisteme bağlı bir Mikrofon/Kamera bulunamadı veya erişim engellendi. Arama başlatılamıyor.");
+                endCall();
+                throw e2;
+            }
+        }
+    }
+
+    if(endCallBtn) endCallBtn.addEventListener('click', () => {
+        socket.emit('webrtc_end', { target: activeCaller });
+        endCall();
+    });
+
+    function endCall() {
+        if(peerConnection) { peerConnection.close(); peerConnection = null; }
+        if(localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
+        if(screenStream) { screenStream.getTracks().forEach(track => track.stop()); screenStream = null; }
+        if(activeCallHUD) activeCallHUD.style.display = 'none';
+        if(incomingCallModal) incomingCallModal.style.display = 'none';
+        if(remoteVideo) remoteVideo.srcObject = null;
+        if(localVideo) localVideo.srcObject = null;
+    }
+
+    let isMuted = false;
+    if(muteMicBtn) muteMicBtn.addEventListener('click', () => {
+        if(!localStream) return;
+        isMuted = !isMuted;
+        localStream.getAudioTracks()[0].enabled = !isMuted;
+        muteMicBtn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+        muteMicBtn.className = isMuted ? 'btn btn-danger rounded-circle' : 'btn btn-secondary rounded-circle';
+    });
+
+    let isVideoOff = false;
+    if(videoToggleBtn) videoToggleBtn.addEventListener('click', () => {
+        if(!localStream) return;
+        isVideoOff = !isVideoOff;
+        localStream.getVideoTracks()[0].enabled = !isVideoOff;
+        videoToggleBtn.innerHTML = isVideoOff ? '<i class="fas fa-video-slash"></i>' : '<i class="fas fa-video"></i>';
+        videoToggleBtn.className = isVideoOff ? 'btn btn-danger rounded-circle' : 'btn btn-secondary rounded-circle';
+        
+        if(screenStream) screenStream.getVideoTracks()[0].enabled = !isVideoOff;
+    });
+
+    if(screenShareBtn) screenShareBtn.addEventListener('click', async () => {
+        try {
+            if(!screenStream) {
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                const screenTrack = screenStream.getVideoTracks()[0];
+                const sender = peerConnection.getSenders().find(s => s.track.kind === 'video');
+                if(sender) sender.replaceTrack(screenTrack);
+                if(localVideo) localVideo.srcObject = screenStream;
+                
+                screenTrack.onended = () => stopScreenShare();
+                screenShareBtn.className = "btn btn-success rounded-circle text-white";
+            } else {
+                stopScreenShare();
+            }
+        } catch(err) { console.error("Screen share err", err); }
+    });
+
+    function stopScreenShare() {
+        if(screenStream) screenStream.getTracks().forEach(track => track.stop());
+        screenStream = null;
+        if(localStream) {
+            const videoTrack = localStream.getVideoTracks()[0];
+            const sender = peerConnection.getSenders().find(s => s.track.kind === 'video');
+            if(sender) sender.replaceTrack(videoTrack);
+            if(localVideo) localVideo.srcObject = localStream;
+        }
+        if(screenShareBtn) screenShareBtn.className = "btn btn-info rounded-circle text-white";
+    }
+
+</script>
+
+    <!-- WEBRTC INCOMING CALL OVERLAY -->
+    <div id="incomingCallModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); z-index:9999; flex-direction:column; align-items:center; justify-content:center; color:white;">
+        <h2 class="fw-bold mb-4" id="callerNameText">@Kullanici Arıyor...</h2>
+        <div class="d-flex gap-4">
+            <button type="button" id="acceptCallBtn" class="btn btn-success rounded-circle shadow-lg" style="width:70px; height:70px; font-size:1.5rem;"><i class="fas fa-phone"></i></button>
+            <button type="button" id="rejectCallBtn" class="btn btn-danger rounded-circle shadow-lg" style="width:70px; height:70px; font-size:1.5rem;"><i class="fas fa-phone-slash"></i></button>
+        </div>
+    </div>
+
+    <!-- WEBRTC ACTIVE CALL HUD -->
+    <div id="activeCallHUD" style="display:none; position:fixed; inset:0; background:#0f172a; z-index:9998; flex-direction:column;">
+        <video id="remoteVideo" autoplay playsinline style="flex:1; width:100%; object-fit:cover;"></video>
+        <video id="localVideo" autoplay playsinline muted style="position:absolute; bottom:120px; right:30px; width:220px; height:160px; background:#000; border-radius:15px; border:2px solid #3b82f6; object-fit:cover; box-shadow:0 10px 30px rgba(0,0,0,0.5);"></video>
+        
+        <div class="p-4 d-flex justify-content-center gap-4" style="background:linear-gradient(transparent, rgba(0,0,0,0.9)); position:absolute; bottom:0; width:100%;">
+            <button type="button" id="muteMicBtn" class="btn btn-secondary rounded-circle" style="width:60px; height:60px; font-size:1.2rem;" title="Sustur"><i class="fas fa-microphone"></i></button>
+            <button type="button" id="videoToggleBtn" class="btn btn-secondary rounded-circle" style="width:60px; height:60px; font-size:1.2rem;" title="Kamerayı Kapat"><i class="fas fa-video"></i></button>
+            <button type="button" id="screenShareBtn" class="btn btn-info text-white rounded-circle" style="width:60px; height:60px; font-size:1.2rem;" title="Ekran Paylaş"><i class="fas fa-display"></i></button>
+            <button type="button" id="endCallBtn" class="btn btn-danger rounded-circle" style="width:60px; height:60px; font-size:1.2rem;" title="Aramayı Kapat"><i class="fas fa-phone-slash"></i></button>
+        </div>
+    </div>
+    <div id="vortex-toast-container"></div>
+    <script src="{{ url_for('static', filename='js/vortex-core.js') }}"></script>
+    <script>
+        window.onload = () => {
+            {% with messages_flash = get_flashed_messages(with_categories=true) %}
+                {% if messages_flash %}
+                    {% for category, message in messages_flash %}
+                        Vortex.toast("{{ message }}", "{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }}");
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        };
+    </script>
+</body>
+
+</html>
