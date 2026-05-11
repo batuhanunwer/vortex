@@ -52,7 +52,7 @@ def messages(chat_user=None):
             try:
                 # Mesajı düzenle
                 if mid:
-                    c.execute("""
+                    c.execute(f"""
                     UPDATE messages
                     SET content={PLACEHOLDER}, edited=1, edited_at=CURRENT_TIMESTAMP
                     WHERE id={PLACEHOLDER} AND sender={PLACEHOLDER}
@@ -70,7 +70,7 @@ def messages(chat_user=None):
                         flash("Alıcı bulunamadı!", "danger")
                         return redirect(url_for("messages.messages", chat_user=chat_user))
 
-                    c.execute("""
+                    c.execute(f"""
                     INSERT INTO messages
                     (sender, receiver, content, timestamp)
                     VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, CURRENT_TIMESTAMP)
@@ -89,7 +89,7 @@ def messages(chat_user=None):
         # Kontaklar listesi (son mesaja göre sıralı)
         u = session["user"]
         c.execute(
-            """
+            f"""
             SELECT other.username AS contact, other.profile_pic AS pic, other.last_seen AS last_seen, MAX(m.id) AS last_id
             FROM messages m
             JOIN users other ON other.username = (
@@ -116,7 +116,7 @@ def messages(chat_user=None):
                 return redirect(url_for("messages.messages"))
 
             # Sohbet geçmişi
-            c.execute("""
+            c.execute(f"""
             SELECT *
             FROM messages
             WHERE
@@ -140,7 +140,7 @@ def messages(chat_user=None):
             history = [dict(r) for r in c.fetchall()]
 
             # Mesajları okundu olarak işaretle
-            c.execute("""
+            c.execute(f"""
             UPDATE messages
             SET is_read=1
             WHERE sender={PLACEHOLDER} AND receiver={PLACEHOLDER} AND is_read=0
@@ -224,13 +224,13 @@ def delete_chat(chat_user):
             return redirect(url_for("messages.messages"))
 
         # Sohbeti sil
-        c.execute("""
+        c.execute(f"""
         UPDATE messages
         SET deleted_by_sender=1
         WHERE sender={PLACEHOLDER} AND receiver={PLACEHOLDER}
         """, (session["user"], chat_user))
 
-        c.execute("""
+        c.execute(f"""
         UPDATE messages
         SET deleted_by_receiver=1
         WHERE sender={PLACEHOLDER} AND receiver={PLACEHOLDER}
@@ -256,7 +256,7 @@ def archive():
         conn = db()
         c = conn.cursor()
 
-        c.execute("""
+        c.execute(f"""
         SELECT *
         FROM messages
         WHERE
@@ -307,3 +307,4 @@ def upload_voice():
         file.save(save_path)
         return jsonify({'url': url_for('static', filename='uploads/' + filename), 'filename': filename})
     return jsonify({'error': 'Unknown error'})
+

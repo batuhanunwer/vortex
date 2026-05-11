@@ -128,3 +128,4 @@ def logout():
 @auth_bp.before_request
 def before_request():
     session.permanent = True
+

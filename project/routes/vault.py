@@ -106,7 +106,7 @@ def vault():
             try:
                 if v_id:
                     c.execute(
-                        """
+                        f"""
                         UPDATE vault
                         SET title={PLACEHOLDER}, secret_data={PLACEHOLDER}
                         WHERE id={PLACEHOLDER} AND user_name={PLACEHOLDER}
@@ -119,7 +119,7 @@ def vault():
                         flash("Gizli veri güncellendi!", "success")
                 else:
                     c.execute(
-                        """
+                        f"""
                         INSERT INTO vault (user_name, title, secret_data)
                         VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER})
                         """,
@@ -279,3 +279,4 @@ def vault_export():
         flash("Vault dış aktarılırken hata oluştu!", "danger")
         print(f"Vault export error: {e}")
         return redirect(url_for("vault.vault"))
+

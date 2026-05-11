@@ -26,7 +26,7 @@ def log_admin_action(action, target_user, details=""):
         admin_user = session.get("user", "unknown")
         timestamp = datetime.now().isoformat()
         
-        c.execute("""
+        c.execute(f"""
         INSERT INTO admin_logs (admin_user, action, target_user, details, timestamp)
         VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER})
         """, (admin_user, action, target_user, details, timestamp))
@@ -57,7 +57,7 @@ def admin():
                     flash("Duyuru 1000 karakterden fazla olamaz!", "danger")
                     return redirect(url_for("admin.admin"))
 
-                c.execute("""
+                c.execute(f"""
                 INSERT INTO announcements (content, created_by)
                 VALUES ({PLACEHOLDER}, {PLACEHOLDER})
                 """, (msg, session.get("user")))
@@ -88,7 +88,7 @@ def admin():
                     flash("Kullanıcı bulunamadı!", "danger")
                     return redirect(url_for("admin.admin"))
 
-                c.execute("""
+                c.execute(f"""
                 UPDATE users
                 SET role = {PLACEHOLDER}
                 WHERE username = {PLACEHOLDER}
@@ -148,7 +148,7 @@ def ban(username):
             return redirect(url_for("admin.admin"))
 
         # Banla
-        c.execute("""
+        c.execute(f"""
         UPDATE users
         SET banned = 1
         WHERE username = {PLACEHOLDER}
@@ -183,7 +183,7 @@ def unban(username):
             flash("Kullanıcı bulunamadı!", "danger")
             return redirect(url_for("admin.admin"))
 
-        c.execute("""
+        c.execute(f"""
         UPDATE users
         SET banned = 0
         WHERE username = {PLACEHOLDER}
@@ -200,3 +200,4 @@ def unban(username):
         print(f"Unban error: {e}")
 
     return redirect(url_for("admin.admin"))
+

@@ -72,7 +72,7 @@ def dashboard():
         }
         
         # Okunmamış mesaj sayısı
-        c.execute("""SELECT COUNT(*) FROM messages 
+        c.execute(f"""SELECT COUNT(*) FROM messages 
                      WHERE receiver={PLACEHOLDER} AND is_read=0 AND deleted_by_receiver=0""", 
                   (session["user"],))
         msg_count = c.fetchone()[0]
@@ -172,3 +172,4 @@ def profile():
         flash("Profil yüklenirken hata oluştu!", "danger")
         print(f"Profile error: {e}")
         return redirect(url_for("dashboard.dashboard"))
+

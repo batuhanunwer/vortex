@@ -163,3 +163,4 @@ def db_kur():
     
     conn.close()
     print(f"Veritabanı hazır ({'PostgreSQL' if DATABASE_URL else 'SQLite'}).")
+

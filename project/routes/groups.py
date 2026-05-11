@@ -68,7 +68,7 @@ def groups_list():
             return redirect(url_for("groups.groups_list"))
 
         # Kullanıcının üye olduğu grupları getir
-        c.execute("""
+        c.execute(f"""
         SELECT rooms.*, COUNT(room_members.username) as member_count
         FROM rooms
         JOIN room_members ON rooms.id = room_members.room_id
@@ -122,7 +122,7 @@ def group_chat(room_id):
                     return redirect(url_for("groups.group_chat", room_id=room_id))
 
                 try:
-                    c.execute("""
+                    c.execute(f"""
                     INSERT INTO room_messages
                     (room_id, sender, content, timestamp)
                     VALUES ({PLACEHOLDER}, {PLACEHOLDER}, {PLACEHOLDER}, CURRENT_TIMESTAMP)
@@ -181,7 +181,7 @@ def group_chat(room_id):
             return redirect(url_for("groups.group_chat", room_id=room_id))
 
         # Grup mesajlarını getir
-        c.execute("""
+        c.execute(f"""
         SELECT room_messages.*, users.profile_pic
         FROM room_messages
         JOIN users ON room_messages.sender = users.username
@@ -339,3 +339,4 @@ def delete_group_message(msg_id):
         flash("Mesaj silinirken hata oluştu!", "danger")
         print(f"Delete group message error: {e}")
         return redirect(url_for("groups.groups_list"))
+
