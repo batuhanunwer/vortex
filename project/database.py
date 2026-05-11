@@ -93,3 +93,4 @@ def db_kur():
         conn.commit()
     conn.close()
     print("Veritabanı hazır.")
+

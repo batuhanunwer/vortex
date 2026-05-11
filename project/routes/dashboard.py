@@ -174,3 +174,4 @@ def profile():
         return redirect(url_for("dashboard.dashboard"))
 
 
+

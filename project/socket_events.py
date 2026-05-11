@@ -4,7 +4,7 @@ from flask_socketio import emit, join_room, leave_room
 from project.socketio_instance import socketio
 from project.database import db
 
-connected_users = ?
+connected_users = {}
 
 @socketio.on('connect')
 def handle_connect():
@@ -178,5 +178,6 @@ def handle_webrtc_end(data):
     target = data.get('target')
     if not sender or not target: return
     emit('webrtc_end', {'sender': sender}, room=target)
+
 
 
