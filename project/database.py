@@ -24,15 +24,28 @@ def get_connection():
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
 
+class PostgresRow(dict):
+    """Hem dict (anahtar) hem de liste (index) erişimini destekleyen Postgres satırı."""
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return list(self.values())[key]
+        return super().__getitem__(key)
+
 class CursorWrapper:
     def __init__(self, cursor):
         self.cursor = cursor
     def execute(self, sql, params=()):
         return self.cursor.execute(db_sorgu_temizle(sql), params)
     def fetchone(self):
-        return self.cursor.fetchone()
+        row = self.cursor.fetchone()
+        if row and DATABASE_URL:
+            return PostgresRow(row)
+        return row
     def fetchall(self):
-        return self.cursor.fetchall()
+        rows = self.cursor.fetchall()
+        if rows and DATABASE_URL:
+            return [PostgresRow(r) for r in rows]
+        return rows
     @property
     def rowcount(self):
         return self.cursor.rowcount
@@ -40,7 +53,11 @@ class CursorWrapper:
     def lastrowid(self):
         return getattr(self.cursor, 'lastrowid', 0)
     def __iter__(self):
-        return iter(self.cursor)
+        it = iter(self.cursor)
+        if DATABASE_URL:
+            for r in it: yield PostgresRow(r)
+        else:
+            yield from it
     def __getattr__(self, name):
         return getattr(self.cursor, name)
 
@@ -84,14 +101,10 @@ def db_kur():
         "CREATE INDEX IF NOT EXISTS idx_vlt_u ON vault(user_name)"
     ]
     for sql in indices:
-        try:
-            c.execute(sql)
-        except Exception:
-            pass
+        try: c.execute(sql)
+        except: pass
         
     if not DATABASE_URL:
         conn.commit()
     conn.close()
     print("Veritabanı hazır.")
-
-
