@@ -13,9 +13,10 @@ def db_sorgu_temizle(sql):
 def get_connection():
     if DATABASE_URL:
         import psycopg2
-        from psycopg2.extras import RealDictCursor
+        from psycopg2.extras import DictCursor
         url = DATABASE_URL.replace("postgres://", "postgresql://")
-        conn = psycopg2.connect(url, cursor_factory=RealDictCursor)
+        # DictCursor hem row["col"] hem de row[0] destekler!
+        conn = psycopg2.connect(url, cursor_factory=DictCursor)
         conn.autocommit = True
         return conn
     else:
@@ -24,42 +25,15 @@ def get_connection():
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
 
-class PostgresRow(dict):
-    """Hem dict (anahtar) hem de liste (index) erişimini destekleyen Postgres satırı."""
-    def __getitem__(self, key):
-        if isinstance(key, int):
-            return list(self.values())[key]
-        return super().__getitem__(key)
-
 class CursorWrapper:
     def __init__(self, cursor):
         self.cursor = cursor
     def execute(self, sql, params=()):
         return self.cursor.execute(db_sorgu_temizle(sql), params)
-    def fetchone(self):
-        row = self.cursor.fetchone()
-        if row and DATABASE_URL:
-            return PostgresRow(row)
-        return row
-    def fetchall(self):
-        rows = self.cursor.fetchall()
-        if rows and DATABASE_URL:
-            return [PostgresRow(r) for r in rows]
-        return rows
-    @property
-    def rowcount(self):
-        return self.cursor.rowcount
-    @property
-    def lastrowid(self):
-        return getattr(self.cursor, 'lastrowid', 0)
-    def __iter__(self):
-        it = iter(self.cursor)
-        if DATABASE_URL:
-            for r in it: yield PostgresRow(r)
-        else:
-            yield from it
     def __getattr__(self, name):
         return getattr(self.cursor, name)
+    def __iter__(self):
+        return iter(self.cursor)
 
 class ConnWrapper:
     def __init__(self, conn):
@@ -91,8 +65,7 @@ def db_kur():
         f"CREATE TABLE IF NOT EXISTS announcements (id {pk}, content TEXT NOT NULL, created_by TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
         f"CREATE TABLE IF NOT EXISTS admin_logs (id {pk}, admin_user TEXT NOT NULL, action TEXT NOT NULL, target_user TEXT, details TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
     ]
-    for sql in tables:
-        c.execute(sql)
+    for sql in tables: c.execute(sql)
     
     indices = [
         "CREATE INDEX IF NOT EXISTS idx_msg_s ON messages(sender)",
@@ -104,7 +77,6 @@ def db_kur():
         try: c.execute(sql)
         except: pass
         
-    if not DATABASE_URL:
-        conn.commit()
+    if not DATABASE_URL: conn.commit()
     conn.close()
     print("Veritabanı hazır.")
