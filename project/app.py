@@ -1,13 +1,16 @@
 import os
 from flask import Flask, render_template
-from project.config import SECRET_KEY
+from project.config import SECRET_KEY, UPLOAD_FOLDER
 from project.database import db_kur
 from project.socketio_instance import socketio
 
 # App instance
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.config['SECRET_KEY'] = SECRET_KEY
-app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure upload directory exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Initialize SocketIO with app
 socketio.init_app(app, async_mode='gevent')

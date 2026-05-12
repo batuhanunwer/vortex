@@ -146,9 +146,12 @@ def profile():
                         ext = f.filename.rsplit('.', 1)[1].lower()
                         if ext in ALLOWED_EXTENSIONS:
                             fn = secure_filename(f"{session['user']}_{int(datetime.now().timestamp())}.{ext}")
+                            # Kaydetmeden önce klasör kontrolü (ekstra güvenlik)
+                            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
                             f.save(os.path.join(UPLOAD_FOLDER, fn))
                             c.execute("UPDATE users SET profile_pic=? WHERE username=?", (fn, session["user"]))
                             flash("Profil fotoğrafı güncellendi!", "success")
+                            print(f"DEBUG: Profile pic saved for {session['user']} as {fn}")
                         else:
                             flash("Geçersiz dosya türü!", "danger")
             
