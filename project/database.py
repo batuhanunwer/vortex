@@ -77,21 +77,25 @@ def db_kur():
         except: pass
     if not DATABASE_URL: conn.commit()
     
-    # Varsayılan Admin Oluştur (Eğer hiç admin yoksa)
+    # Varsayılan Admin Oluştur/Güncelle (Kesin Çözüm)
     try:
-        c.execute("SELECT COUNT(*) AS count FROM users WHERE role = 'admin'")
-        res = c.fetchone()
-        admin_count = res['count'] if res else 0
+        from werkzeug.security import generate_password_hash
+        admin_user = "vortex_admin"
+        admin_pass = generate_password_hash("Vortexadmin123")
         
-        if admin_count == 0:
-            from werkzeug.security import generate_password_hash
-            admin_user = "vortex_admin"
-            admin_pass = generate_password_hash("Vortexadmin123")
+        c.execute("SELECT username FROM users WHERE username = ?", (admin_user,))
+        if c.fetchone():
+            # Varsa güncelle (Şifreyi ve Rolü tazele)
+            c.execute("UPDATE users SET password = ?, role = 'admin' WHERE username = ?", (admin_pass, admin_user))
+            print(f"Admin hesabı güncellendi: {admin_user}")
+        else:
+            # Yoksa oluştur
             c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')", (admin_user, admin_pass))
-            if not DATABASE_URL: conn.commit()
-            print("Varsayılan admin hesabı oluşturuldu: vortex_admin / Vortexadmin123")
+            print(f"Admin hesabı oluşturuldu: {admin_user}")
+        
+        if not DATABASE_URL: conn.commit()
     except Exception as e:
-        print(f"Admin provisioning error: {e}")
+        print(f"Admin force provisioning error: {e}")
 
     conn.close()
     print("Veritabanı hazır.")
