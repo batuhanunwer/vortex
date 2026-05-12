@@ -669,10 +669,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('vault.vault') }}">Kasa</a>
                     </li>
-                    {% if session.get('role') == 'admin' %}
+                    {% if session.get('role') in ['admin', 'moderator'] %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin.admin') }}"><i class="fas fa-shield-alt"></i>
-                            Admin</a>
+                        <a class="nav-link" href="{{ url_for('admin.admin') }}">
+                            <i class="fas fa-shield-alt"></i> {{ 'Admin' if session.get('role') == 'admin' else 'Yönetim' }}
+                        </a>
                     </li>
                     {% endif %}
                     <li class="nav-item">

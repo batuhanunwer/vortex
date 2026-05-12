@@ -336,10 +336,10 @@
                 <span class="title" style="color: #fcd34d;">Şifreli Kasa</span>
             </a>
 
-            {% if u.username == 'admin' or u.role == 'admin' %}
+            {% if u.role in ['admin', 'moderator'] %}
             <a href="{{ url_for('admin.admin') }}" class="nav-card">
-                <i class="fas fa-shield-halved" style="color: #34d399;"></i>
-                <span class="title" style="color: #6ee7b7;">Admin Paneli</span>
+                <i class="fas fa-shield-alt" style="color: #fca5a5;"></i>
+                <span class="title" style="color: #fca5a5;">{{ 'Admin' if u.role == 'admin' else 'Moderasyon' }} Paneli</span>
             </a>
             {% endif %}
         </div>
