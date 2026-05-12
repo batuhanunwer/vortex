@@ -50,6 +50,11 @@ def admin():
                 target = request.form.get("target_user", "").strip()
                 if target == "ALL": target = None
                 
+                # Moderatör kısıtlaması: Genel duyuru yapamazlar
+                if session.get("role") == "moderator" and target is None:
+                    flash("Moderatörler genel duyuru yapamaz, sadece kişisel duyuru yapabilir!", "danger")
+                    return redirect(url_for("admin.admin"))
+                
                 if not msg or len(msg) < 3:
                     flash("Duyuru en az 3 karakter olmalı!", "danger")
                     return redirect(url_for("admin.admin"))

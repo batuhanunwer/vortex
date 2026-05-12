@@ -482,7 +482,9 @@
                             <div style="min-width: 200px;">
                                 <label class="small text-muted mb-1 d-block"><i class="fas fa-user-tag"></i> Hedef Kitle</label>
                                 <select name="target_user" class="form-select form-select-sm">
+                                    {% if session.get('role') == 'admin' %}
                                     <option value="ALL">📢 Tüm Kullanıcılar (Genel)</option>
+                                    {% endif %}
                                     <optgroup label="Kişisel Duyuru Gönder">
                                         {% for u_name in all_users %}
                                             <option value="{{ u_name }}">👤 @{{ u_name }}</option>
