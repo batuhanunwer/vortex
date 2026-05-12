@@ -83,15 +83,15 @@ def admin():
                     return redirect(url_for("admin.admin"))
 
                 # Kullanıcı var mı kontrol et
-                c.execute("SELECT username FROM users WHERE username = {}", (target_user,))
+                c.execute("SELECT username FROM users WHERE username = ?", (target_user,))
                 if not c.fetchone():
                     flash("Kullanıcı bulunamadı!", "danger")
                     return redirect(url_for("admin.admin"))
 
                 c.execute("""
                 UPDATE users
-                SET role = {}
-                WHERE username = {}
+                SET role = ?
+                WHERE username = ?
                 """, (new_role, target_user))
 
                 conn.commit()
@@ -142,7 +142,7 @@ def ban(username):
         c = conn.cursor()
 
         # Kullanıcı var mı kontrol et
-        c.execute("SELECT username FROM users WHERE username = {}", (username,))
+        c.execute("SELECT username FROM users WHERE username = ?", (username,))
         if not c.fetchone():
             flash("Kullanıcı bulunamadı!", "danger")
             return redirect(url_for("admin.admin"))
@@ -151,7 +151,7 @@ def ban(username):
         c.execute("""
         UPDATE users
         SET banned = 1
-        WHERE username = {}
+        WHERE username = ?
         """, (username,))
 
         conn.commit()
@@ -178,7 +178,7 @@ def unban(username):
         c = conn.cursor()
 
         # Kullanıcı var mı kontrol et
-        c.execute("SELECT username FROM users WHERE username = {}", (username,))
+        c.execute("SELECT username FROM users WHERE username = ?", (username,))
         if not c.fetchone():
             flash("Kullanıcı bulunamadı!", "danger")
             return redirect(url_for("admin.admin"))
@@ -186,7 +186,7 @@ def unban(username):
         c.execute("""
         UPDATE users
         SET banned = 0
-        WHERE username = {}
+        WHERE username = ?
         """, (username,))
 
         conn.commit()
@@ -200,6 +200,7 @@ def unban(username):
         print(f"Unban error: {e}")
 
     return redirect(url_for("admin.admin"))
+
 
 
 

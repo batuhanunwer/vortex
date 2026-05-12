@@ -93,10 +93,10 @@ def messages(chat_user=None):
             SELECT other.username AS contact, other.profile_pic AS pic, other.last_seen AS last_seen, MAX(m.id) AS last_id
             FROM messages m
             JOIN users other ON other.username = (
-                CASE WHEN m.sender = {} THEN m.receiver ELSE m.sender END
+                CASE WHEN m.sender = ? THEN m.receiver ELSE m.sender END
             )
-            WHERE (m.sender = {} AND m.deleted_by_sender = 0)
-               OR (m.receiver = {} AND m.deleted_by_receiver = 0)
+            WHERE (m.sender = ? AND m.deleted_by_sender = 0)
+               OR (m.receiver = ? AND m.deleted_by_receiver = 0)
             GROUP BY other.username, other.profile_pic, other.last_seen
             ORDER BY last_id DESC
             """,
@@ -121,12 +121,12 @@ def messages(chat_user=None):
             FROM messages
             WHERE
                 (
-                    sender = {} AND receiver = {}
+                    sender = ? AND receiver = ?
                     AND deleted_by_sender = 0
                 )
                 OR
                 (
-                    sender = {} AND receiver = {}
+                    sender = ? AND receiver = ?
                     AND deleted_by_receiver = 0
                 )
             ORDER BY id ASC
@@ -260,9 +260,9 @@ def archive():
         SELECT *
         FROM messages
         WHERE
-            (sender = {} AND deleted_by_sender = 1)
+            (sender = ? AND deleted_by_sender = 1)
             OR
-            (receiver = {} AND deleted_by_receiver = 1)
+            (receiver = ? AND deleted_by_receiver = 1)
         ORDER BY timestamp DESC
         LIMIT 100
         """, (session["user"], session["user"]))
@@ -307,6 +307,7 @@ def upload_voice():
         file.save(save_path)
         return jsonify({'url': url_for('static', filename='uploads/' + filename), 'filename': filename})
     return jsonify({'error': 'Unknown error'})
+
 
 
 

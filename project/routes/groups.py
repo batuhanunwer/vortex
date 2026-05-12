@@ -72,7 +72,7 @@ def groups_list():
         SELECT rooms.*, COUNT(room_members.username) as member_count
         FROM rooms
         JOIN room_members ON rooms.id = room_members.room_id
-        WHERE room_members.username = {}
+        WHERE room_members.username = ?
         GROUP BY rooms.id
         ORDER BY rooms.id DESC
         """, (session["user"],))
@@ -339,6 +339,7 @@ def delete_group_message(msg_id):
         flash("Mesaj silinirken hata oluştu!", "danger")
         print(f"Delete group message error: {e}")
         return redirect(url_for("groups.groups_list"))
+
 
 
 

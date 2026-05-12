@@ -39,7 +39,7 @@ def login():
             conn = db()
             c = conn.cursor()
 
-            c.execute("SELECT * FROM users WHERE username = {}", (username,))
+            c.execute("SELECT * FROM users WHERE username = ?", (username,))
             user = c.fetchone()
 
             conn.close()
@@ -128,6 +128,7 @@ def logout():
 @auth_bp.before_request
 def before_request():
     session.permanent = True
+
 
 
 
