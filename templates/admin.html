@@ -473,16 +473,30 @@
             <div class="admin-card">
                 <h5><i class="fas fa-bullhorn"></i> Yeni Duyuru Yayınla</h5>
                 <div class="announcement-box">
-                    <form method="POST" action="{{ url_for('admin.admin') }}" class="d-flex gap-2"
-                        style="flex-wrap: wrap;">
-                        <input name="msg" class="form-control flex-grow-1" placeholder="Tüm ağa yayın yapabilirsiniz..."
-                            maxlength="1000" required style="min-width: 300px;">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane"></i> YAYINLA
-                        </button>
+                    <form method="POST" action="{{ url_for('admin.admin') }}" class="d-flex flex-column gap-3">
+                        <div class="d-flex gap-2" style="flex-wrap: wrap;">
+                            <textarea name="msg" class="form-control flex-grow-1" placeholder="Duyuru metnini yazın..."
+                                maxlength="1000" required style="min-width: 300px; height: 80px;"></textarea>
+                        </div>
+                        <div class="d-flex align-items-center gap-3" style="flex-wrap: wrap;">
+                            <div style="min-width: 200px;">
+                                <label class="small text-muted mb-1 d-block"><i class="fas fa-user-tag"></i> Hedef Kitle</label>
+                                <select name="target_user" class="form-select form-select-sm">
+                                    <option value="ALL">📢 Tüm Kullanıcılar (Genel)</option>
+                                    <optgroup label="Kişisel Duyuru Gönder">
+                                        {% for u_name in all_users %}
+                                            <option value="{{ u_name }}">👤 @{{ u_name }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary px-4 mt-auto">
+                                <i class="fas fa-paper-plane"></i> YAYINLA
+                            </button>
+                        </div>
                     </form>
-                    <small class="text-muted d-block mt-2">
-                        <i class="fas fa-info-circle"></i> Duyurular tüm aktif kullanıcılara gösterilecektir.
+                    <small class="text-muted d-block mt-3">
+                        <i class="fas fa-info-circle"></i> Genel duyurular tüm ağda, kişisel duyurular sadece hedef kullanıcının Dashboard'unda görünür.
                     </small>
                 </div>
             </div>
@@ -558,7 +572,7 @@
                                         {% endif %}
                                         {% endif %}
 
-                                        {% if user.username != session['user'] %}
+                                         {% if user.username != session['user'] and session.get('role') == 'admin' %}
                                         <button type="button" class="btn btn-sm btn-secondary role-change-btn"
                                             data-bs-toggle="modal" data-bs-target="#roleModal"
                                             data-username="{{ user.username }}" data-role="{{ user.role }}">

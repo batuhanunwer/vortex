@@ -136,12 +136,16 @@
             color: #94a3b8;
             font-size: 1.2rem;
         }
-        .search-mockup span {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1rem;
-            flex: 1;
-            text-align: left;
-        }
+        .search-mockup span { color: rgba(255, 255, 255, 0.5); font-size: 1rem; flex: 1; text-align: left; }
+
+        /* Announcement Styles */
+        .announcement-section { max-width: 600px; margin: 0 auto; text-align: left; }
+        .announcement-card { background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; transition: 0.3s; backdrop-filter: blur(5px); }
+        .announcement-card:hover { background: rgba(15, 23, 42, 0.6); border-color: rgba(59, 130, 246, 0.3); }
+        .announcement-card.personal { border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); }
+        .ann-content { color: #e2e8f0; font-size: 0.9rem; line-height: 1.5; }
+        .ann-date { color: #64748b; font-size: 0.7rem; }
+        .personal-badge { font-size: 0.6rem; letter-spacing: 1px; padding: 3px 8px; border-radius: 5px; }
 
         .navigation-grid {
             display: flex;
@@ -288,12 +292,27 @@
             Haberleşme paneline hoş geldin. Sohbetlerin, özel kasan ve departman bilgilerin burada yer alır. Erişmek istediğin alanı seçerek ilerle.
         </p>
 
-        <!-- A mock search bar giving that Wiki feel -->
-        <div class="search-mockup" data-bs-toggle="modal" data-bs-target="#searchModal">
-            <i class="fas fa-search"></i>
-            <span>Mesajlarda veya grup kayıtlarında ara...</span>
-            <span class="badge bg-secondary" style="font-size:0.7rem;">STRG/CTRL + K</span>
+        <!-- ANNOUNCEMENTS -->
+        {% if announcements %}
+        <div class="announcement-section mt-4 mb-5 animate-on-scroll">
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-bullhorn text-primary me-2"></i>
+                <span class="text-uppercase fw-bold small text-secondary" style="letter-spacing: 1.5px; font-size: 0.7rem;">Sistem Duyuruları</span>
+            </div>
+            {% for ann in announcements %}
+            <div class="announcement-card {% if ann.target_user %}personal{% endif %} mb-2">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="ann-content">
+                        {% if ann.target_user %}
+                            <span class="badge bg-primary personal-badge me-2">SANA ÖZEL</span>
+                        {% endif %}
+                        {{ ann.content }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
+        {% endif %}
 
         <div class="navigation-grid">
             <a href="{{ url_for('dashboard.profile') }}" class="nav-card">

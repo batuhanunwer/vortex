@@ -67,7 +67,7 @@ def db_kur():
         f"CREATE TABLE IF NOT EXISTS room_members (id {pk}, room_id INTEGER NOT NULL, username TEXT NOT NULL, joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(room_id, username))",
         f"CREATE TABLE IF NOT EXISTS room_messages (id {pk}, room_id INTEGER NOT NULL, sender TEXT NOT NULL, content TEXT NOT NULL, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, edited INTEGER DEFAULT 0, edited_at TEXT)",
         f"CREATE TABLE IF NOT EXISTS vault (id {pk}, user_name TEXT NOT NULL, title TEXT NOT NULL, secret_data TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
-        f"CREATE TABLE IF NOT EXISTS announcements (id {pk}, content TEXT NOT NULL, created_by TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
+        f"CREATE TABLE IF NOT EXISTS announcements (id {pk}, content TEXT NOT NULL, created_by TEXT, target_user TEXT DEFAULT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
         f"CREATE TABLE IF NOT EXISTS admin_logs (id {pk}, admin_user TEXT NOT NULL, action TEXT NOT NULL, target_user TEXT, details TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
     ]
     for sql in tables: c.execute(sql)
@@ -75,6 +75,13 @@ def db_kur():
         t, c_name = ("messages","sender") if "msg_s" in idx else (("messages","receiver") if "msg_r" in idx else (("room_messages","room_id") if "rmsg" in idx else ("vault","user_name")))
         try: c.execute(f"CREATE INDEX IF NOT EXISTS {idx} ON {t}({c_name})")
         except: pass
+    
+    # Kolon ekleme (target_user)
+    try:
+        c.execute("ALTER TABLE announcements ADD COLUMN target_user TEXT DEFAULT NULL")
+        if not DATABASE_URL: conn.commit()
+    except:
+        pass
     if not DATABASE_URL: conn.commit()
     
     # Varsayılan Admin Oluştur/Güncelle (Kesin Çözüm)

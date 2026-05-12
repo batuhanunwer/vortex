@@ -9,7 +9,7 @@ admin_bp = Blueprint("admin", __name__)
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if session.get("role") != "admin":
+        if session.get("role") not in ["admin", "moderator"]:
             flash("Bu işlem için yetkiniz yok!", "danger")
             abort(403)
         return f(*args, **kwargs)
@@ -44,29 +44,31 @@ def admin():
 
     if request.method == "POST":
         try:
-            # Duyuru gönder
+            # Duyuru gönder (Genel veya Kişisel)
             if "msg" in request.form:
                 msg = request.form.get("msg", "").strip()
+                target = request.form.get("target_user", "").strip()
+                if target == "ALL": target = None
                 
                 if not msg or len(msg) < 3:
                     flash("Duyuru en az 3 karakter olmalı!", "danger")
                     return redirect(url_for("admin.admin"))
                 
-                if len(msg) > 1000:
-                    flash("Duyuru 1000 karakterden fazla olamaz!", "danger")
-                    return redirect(url_for("admin.admin"))
-
                 c.execute("""
-                INSERT INTO announcements (content, created_by)
-                VALUES (?, ?)
-                """, (msg, session.get("user")))
+                INSERT INTO announcements (content, created_by, target_user)
+                VALUES (?, ?, ?)
+                """, (msg, session.get("user"), target))
 
                 conn.commit()
-                log_admin_action("announcement", "all", msg[:50])
+                log_admin_action("announcement", target if target else "all", msg[:50])
                 flash("Duyuru başarıyla gönderildi!", "success")
 
-            # Rol değiştir
+            # Rol değiştir (Sadece Admin)
             elif "change_role" in request.form:
+                if session.get("role") != "admin":
+                    flash("Sadece yöneticiler rol değiştirebilir!", "danger")
+                    return redirect(url_for("admin.admin"))
+                
                 target_user = request.form.get("user_id", "").strip()
                 new_role = request.form.get("new_role", "").strip()
 
@@ -112,8 +114,13 @@ def admin():
         ORDER BY created_at DESC
         """)
         users = [dict(r) for r in c.fetchall()]
+        
+        # Kullanıcı listesini getir (Duyuru hedefi seçimi için)
+        c.execute("SELECT username FROM users ORDER BY username ASC")
+        all_users = [r['username'] for r in c.fetchall()]
     except Exception as e:
         users = []
+        all_users = []
         print(f"Error fetching users: {e}")
 
     conn.close()
@@ -121,6 +128,7 @@ def admin():
     return render_template(
         "admin.html",
         users=users,
+        all_users=all_users,
         valid_roles=["user", "moderator", "admin"]
     )
 
@@ -140,10 +148,16 @@ def ban(username):
         conn = db()
         c = conn.cursor()
 
-        # Kullanıcı var mı kontrol et
-        c.execute("SELECT username FROM users WHERE username = ?", (username,))
-        if not c.fetchone():
+        # Kullanıcı var mı ve rolü ne kontrol et
+        c.execute("SELECT username, role FROM users WHERE username = ?", (username,))
+        target_user = c.fetchone()
+        if not target_user:
             flash("Kullanıcı bulunamadı!", "danger")
+            return redirect(url_for("admin.admin"))
+
+        # Moderatör koruması: Adminleri banlayamaz
+        if target_user['role'] == 'admin' and session.get('role') != 'admin':
+            flash("Moderatörler adminleri banlayamaz!", "danger")
             return redirect(url_for("admin.admin"))
 
         # Banla

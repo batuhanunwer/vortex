@@ -80,10 +80,14 @@ def dashboard():
         row = c.fetchone()
         msg_count = row['count'] if row else 0
         
-        # Son duyuru (şablon string bekliyor)
-        c.execute("SELECT content FROM announcements ORDER BY id DESC LIMIT 1")
-        ann_row = c.fetchone()
-        ann = ann_row["content"] if ann_row else None
+        # Duyuruları getir (Genel ve Kişisel)
+        c.execute("""
+        SELECT content, created_by, created_at, target_user 
+        FROM announcements 
+        WHERE target_user IS NULL OR target_user = ? 
+        ORDER BY created_at DESC LIMIT 5
+        """, (session['user'],))
+        announcements = c.fetchall()
         
         # Katılımcı oldukları grup sayısı
         c.execute("SELECT COUNT(*) AS count FROM room_members WHERE username=?", (session["user"],))
@@ -112,7 +116,7 @@ def dashboard():
             "dashboard.html",
             u=u_data,
             msg_count=msg_count,
-            ann=ann,
+            announcements=announcements,
             group_count=group_count,
             vault_count=vault_count,
             total_sent=total_sent
