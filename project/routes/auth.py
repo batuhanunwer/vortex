@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, session, url_fo
 from project.database import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
-import sqlite3
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -108,7 +107,7 @@ def register():
             flash("Kayıt başarılı! Lütfen giriş yapın.", "success")
             return redirect(url_for("auth.login"))
 
-        except sqlite3.IntegrityError:
+        except Exception:
             flash("Bu kullanıcı adı zaten alınmış!", "danger")
         except Exception as e:
             flash("Kayıt sırasında bir hata oluştu!", "danger")
@@ -128,6 +127,8 @@ def logout():
 @auth_bp.before_request
 def before_request():
     session.permanent = True
+
+
 
 
 

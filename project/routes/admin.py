@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, session, url_fo
 from project.database import db
 from functools import wraps
 from datetime import datetime
-import sqlite3
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -98,7 +97,7 @@ def admin():
                 log_admin_action("role_change", target_user, f"new_role={new_role}")
                 flash(f"{target_user}'ün rolü {new_role} olarak değiştirildi!", "success")
 
-        except sqlite3.Error as e:
+        except Exception as e:
             flash("Veritabanı hatası!", "danger")
             print(f"Database error: {e}")
         except Exception as e:
@@ -200,6 +199,8 @@ def unban(username):
         print(f"Unban error: {e}")
 
     return redirect(url_for("admin.admin"))
+
+
 
 
 

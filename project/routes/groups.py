@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash, abort
+import os
 from project.database import db
 from datetime import datetime
 from functools import wraps
-import sqlite3
 
 groups_bp = Blueprint("groups", __name__)
 
@@ -43,12 +43,16 @@ def groups_list():
 
             try:
                 # Grup oluştur
-                c.execute(
-                    "INSERT INTO rooms (room_name, creator, description) VALUES (?, ?, ?)",
-                    (room_name, session["user"], "")
-                )
+                query = "INSERT INTO rooms (room_name, creator, description) VALUES (?, ?, ?)"
+                if os.getenv("DATABASE_URL"):
+                    query += " RETURNING id"
+                
+                c.execute(query, (room_name, session["user"], ""))
 
-                room_id = c.lastrowid
+                if os.getenv("DATABASE_URL"):
+                    room_id = c.fetchone()[0]
+                else:
+                    room_id = c.lastrowid
 
                 # Yaratıcıyı üye olarak ekle
                 c.execute(
@@ -59,7 +63,7 @@ def groups_list():
                 conn.commit()
                 flash(f"'{room_name}' grubu başarıyla oluşturuldu!", "success")
 
-            except sqlite3.IntegrityError:
+            except Exception:
                 flash("Bu grup adı zaten kullanılıyor!", "danger")
             except Exception as e:
                 flash("Grup oluşturma sırasında hata oluştu!", "danger")
@@ -69,7 +73,7 @@ def groups_list():
 
         # Kullanıcının üye olduğu grupları getir
         c.execute("""
-        SELECT rooms.*, COUNT(room_members.username) as member_count
+        SELECT rooms.*, COUNT(room_members.username) AS member_count
         FROM rooms
         JOIN room_members ON rooms.id = room_members.room_id
         WHERE room_members.username = ?
@@ -172,7 +176,7 @@ def group_chat(room_id):
                     conn.commit()
                     flash(f"{new_member} gruba eklendi!", "success")
 
-                except sqlite3.IntegrityError:
+                except Exception:
                     flash("Bu kullanıcı zaten grupta!", "danger")
                 except Exception as e:
                     flash("Üye eklerken hata oluştu!", "danger")
@@ -339,6 +343,8 @@ def delete_group_message(msg_id):
         flash("Mesaj silinirken hata oluştu!", "danger")
         print(f"Delete group message error: {e}")
         return redirect(url_for("groups.groups_list"))
+
+
 
 
 

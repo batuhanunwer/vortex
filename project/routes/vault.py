@@ -1,6 +1,6 @@
 import base64
 import json
-import sqlite3
+import os
 from typing import Optional
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -118,18 +118,16 @@ def vault():
                     else:
                         flash("Gizli veri güncellendi!", "success")
                 else:
-                    c.execute(
-                        """
-                        INSERT INTO vault (user_name, title, secret_data)
-                        VALUES (?, ?, ?)
-                        """,
-                        (session["user"], title, encrypted_secret),
-                    )
+                    query = "INSERT INTO vault (user_name, title, secret_data) VALUES (?, ?, ?)"
+                    if os.getenv("DATABASE_URL"):
+                        query += " RETURNING id"
+                    
+                    c.execute(query, (session["user"], title, encrypted_secret))
                     flash("Gizli veri kaydedildi!", "success")
 
                 conn.commit()
 
-            except sqlite3.Error as e:
+            except Exception as e:
                 flash("Veritabanı hatası!", "danger")
                 print(f"Vault database error: {e}")
             except Exception as e:
@@ -139,7 +137,7 @@ def vault():
             return redirect(url_for("vault.vault"))
 
         c.execute(
-            "SELECT id, title, user, created_at FROM vault WHERE user_name=? ORDER BY id DESC",
+            "SELECT id, title, user_name, created_at FROM vault WHERE user_name=? ORDER BY id DESC",
             (session["user"],),
         )
 
@@ -216,7 +214,7 @@ def vault_delete(vault_id):
         c = conn.cursor()
 
         c.execute(
-            "SELECT user FROM vault WHERE id=?",
+            "SELECT user_name FROM vault WHERE id=?",
             (vault_id,),
         )
 
@@ -226,7 +224,7 @@ def vault_delete(vault_id):
             flash("Gizli veri bulunamadı!", "danger")
             return redirect(url_for("vault.vault"))
 
-        if row["user"] != session["user"]:
+        if row["user_name"] != session["user"]:
             flash("Bu veriyi silemezsin!", "danger")
             abort(403)
 
@@ -279,6 +277,8 @@ def vault_export():
         flash("Vault dış aktarılırken hata oluştu!", "danger")
         print(f"Vault export error: {e}")
         return redirect(url_for("vault.vault"))
+
+
 
 
 

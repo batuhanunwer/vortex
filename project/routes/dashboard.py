@@ -5,7 +5,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from project.config import UPLOAD_FOLDER, ALLOWED_EXTENSIONS
 from datetime import datetime
 import os
-import sqlite3
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
@@ -72,10 +71,11 @@ def dashboard():
         }
         
         # Okunmamış mesaj sayısı
-        c.execute("""SELECT COUNT(*) FROM messages 
+        c.execute("""SELECT COUNT(*) AS count FROM messages 
                      WHERE receiver=? AND is_read=0 AND deleted_by_receiver=0""", 
                   (session["user"],))
-        msg_count = c.fetchone()[0]
+        row = c.fetchone()
+        msg_count = row['count'] if row else 0
         
         # Son duyuru (şablon string bekliyor)
         c.execute("SELECT content FROM announcements ORDER BY id DESC LIMIT 1")
@@ -83,19 +83,23 @@ def dashboard():
         ann = ann_row["content"] if ann_row else None
         
         # Katılımcı oldukları grup sayısı
-        c.execute("SELECT COUNT(*) FROM room_members WHERE username=?", (session["user"],))
-        group_count = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) AS count FROM room_members WHERE username=?", (session["user"],))
+        row = c.fetchone()
+        group_count = row['count'] if row else 0
         
         # Vault öğeleri sayısı
-        c.execute("SELECT COUNT(*) FROM vault WHERE user_name=?", (session["user"],))
-        vault_count = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) AS count FROM vault WHERE user_name=?", (session["user"],))
+        row = c.fetchone()
+        vault_count = row['count'] if row else 0
 
         # Toplam gönderilen mesaj sayısı (Mesajlar + Grup Mesajları)
-        c.execute("SELECT COUNT(*) FROM messages WHERE sender=?", (session["user"],))
-        sent_m_count = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) AS count FROM messages WHERE sender=?", (session["user"],))
+        row_m = c.fetchone()
+        sent_m_count = row_m['count'] if row_m else 0
 
-        c.execute("SELECT COUNT(*) FROM room_messages WHERE sender=?", (session["user"],))
-        sent_g_count = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) AS count FROM room_messages WHERE sender=?", (session["user"],))
+        row_g = c.fetchone()
+        sent_g_count = row_g['count'] if row_g else 0
         
         total_sent = sent_m_count + sent_g_count
 
@@ -153,16 +157,22 @@ def profile():
         u_row = c.fetchone()
         u_data = dict(u_row)
         
-        c.execute("SELECT COUNT(*) FROM room_members WHERE username=?", (session["user"],))
-        group_count = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) AS count FROM room_members WHERE username=?", (session["user"],))
+        row = c.fetchone()
+        group_count = row['count'] if row else 0
         
-        c.execute("SELECT COUNT(*) FROM vault WHERE user_name=?", (session["user"],))
-        vault_count = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) AS count FROM vault WHERE user_name=?", (session["user"],))
+        row = c.fetchone()
+        vault_count = row['count'] if row else 0
 
-        c.execute("SELECT COUNT(*) FROM messages WHERE sender=?", (session["user"],))
-        sent_m = c.fetchone()[0]
-        c.execute("SELECT COUNT(*) FROM room_messages WHERE sender=?", (session["user"],))
-        sent_g = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) AS count FROM messages WHERE sender=?", (session["user"],))
+        row_m = c.fetchone()
+        sent_m = row_m['count'] if row_m else 0
+
+        c.execute("SELECT COUNT(*) AS count FROM room_messages WHERE sender=?", (session["user"],))
+        row_g = c.fetchone()
+        sent_g = row_g['count'] if row_g else 0
+        
         total_sent = sent_m + sent_g
 
         conn.close()
@@ -172,6 +182,8 @@ def profile():
         flash("Profil yüklenirken hata oluştu!", "danger")
         print(f"Profile error: {e}")
         return redirect(url_for("dashboard.dashboard"))
+
+
 
 
 

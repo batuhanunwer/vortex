@@ -15,7 +15,6 @@ def get_connection():
         import psycopg2
         from psycopg2.extras import DictCursor
         url = DATABASE_URL.replace("postgres://", "postgresql://")
-        # DictCursor hem row["col"] hem de row[0] destekler!
         conn = psycopg2.connect(url, cursor_factory=DictCursor)
         conn.autocommit = True
         return conn
@@ -30,6 +29,13 @@ class CursorWrapper:
         self.cursor = cursor
     def execute(self, sql, params=()):
         return self.cursor.execute(db_sorgu_temizle(sql), params)
+    def fetchone(self):
+        return self.cursor.fetchone()
+    def fetchall(self):
+        return self.cursor.fetchall()
+    @property
+    def lastrowid(self):
+        return getattr(self.cursor, 'lastrowid', 0)
     def __getattr__(self, name):
         return getattr(self.cursor, name)
     def __iter__(self):
@@ -41,8 +47,7 @@ class ConnWrapper:
     def cursor(self):
         return CursorWrapper(self.conn.cursor())
     def commit(self):
-        if not DATABASE_URL:
-            self.conn.commit()
+        if not DATABASE_URL: self.conn.commit()
     def close(self):
         self.conn.close()
     def __getattr__(self, name):
@@ -66,17 +71,10 @@ def db_kur():
         f"CREATE TABLE IF NOT EXISTS admin_logs (id {pk}, admin_user TEXT NOT NULL, action TEXT NOT NULL, target_user TEXT, details TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
     ]
     for sql in tables: c.execute(sql)
-    
-    indices = [
-        "CREATE INDEX IF NOT EXISTS idx_msg_s ON messages(sender)",
-        "CREATE INDEX IF NOT EXISTS idx_msg_r ON messages(receiver)",
-        "CREATE INDEX IF NOT EXISTS idx_rmsg_r ON room_messages(room_id)",
-        "CREATE INDEX IF NOT EXISTS idx_vlt_u ON vault(user_name)"
-    ]
-    for sql in indices:
-        try: c.execute(sql)
+    for idx in ["idx_msg_s","idx_msg_r","idx_rmsg_r","idx_vlt_u"]:
+        t, c_name = ("messages","sender") if "msg_s" in idx else (("messages","receiver") if "msg_r" in idx else (("room_messages","room_id") if "rmsg" in idx else ("vault","user_name")))
+        try: c.execute(f"CREATE INDEX IF NOT EXISTS {idx} ON {t}({c_name})")
         except: pass
-        
     if not DATABASE_URL: conn.commit()
     conn.close()
     print("Veritabanı hazır.")

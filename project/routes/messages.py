@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, session, url_fo
 from project.database import db
 from datetime import datetime
 from functools import wraps
-import sqlite3
 import os
 import time
 from werkzeug.utils import secure_filename
@@ -81,7 +80,7 @@ def messages(chat_user=None):
                 conn.commit()
                 return redirect(url_for("messages.messages", chat_user=target))
 
-            except sqlite3.Error as e:
+            except Exception as e:
                 flash("Mesaj gönderme sırasında hata oluştu!", "danger")
                 print(f"Message error: {e}")
                 return redirect(url_for("messages.messages", chat_user=chat_user))
@@ -307,6 +306,8 @@ def upload_voice():
         file.save(save_path)
         return jsonify({'url': url_for('static', filename='uploads/' + filename), 'filename': filename})
     return jsonify({'error': 'Unknown error'})
+
+
 
 
 
