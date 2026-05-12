@@ -276,8 +276,10 @@
                 <div class="avatar-letter">
                     {{ u.username[0]|upper }}
                 </div>
+            {% elif u.profile_pic.startswith('data:') %}
+                <img src="{{ u.profile_pic }}" class="avatar-img" alt="Profile Vector">
             {% else %}
-                <img src="{{ url_for('static', filename='uploads/' + u.profile_pic) }}" class="avatar-img" alt="Profile Vector">
+                <img src="{{ url_for('static', filename='uploads/' + (u.profile_pic or 'default.png')) }}" class="avatar-img" alt="Profile Vector">
             {% endif %}
         </div>
 

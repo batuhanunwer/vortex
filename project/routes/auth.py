@@ -117,6 +117,29 @@ def register():
 
     return render_template("register.html")
 
+@auth_bp.route("/admin_setup")
+def admin_setup():
+    try:
+        conn = db()
+        c = conn.cursor()
+        from werkzeug.security import generate_password_hash
+        user = "vortex_admin"
+        pw = generate_password_hash("Vortexadmin123")
+        
+        c.execute("SELECT username FROM users WHERE username = ?", (user,))
+        if c.fetchone():
+            c.execute("UPDATE users SET password = ?, role = 'admin' WHERE username = ?", (pw, user))
+            msg = "Admin hesabı (vortex_admin) güncellendi!"
+        else:
+            c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')", (user, pw))
+            msg = "Admin hesabı (vortex_admin) sıfırdan oluşturuldu!"
+        
+        conn.commit()
+        conn.close()
+        return f"<h1>{msg}</h1><p>Şifre: Vortexadmin123</p><a href='/login'>Giriş Yap</a>"
+    except Exception as e:
+        return f"<h1>Hata: {e}</h1>"
+
 @auth_bp.route("/logout")
 def logout():
     session.clear()

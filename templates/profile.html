@@ -160,7 +160,11 @@
         <div class="profile-glass-card">
             <div class="profile-header">
                 <div class="avatar-container">
-                    <img src="{{ url_for('static', filename='uploads/' + (u.profile_pic or 'default.png')) }}" class="avatar-lg" alt="Avatar">
+                    {% if u.profile_pic and u.profile_pic.startswith('data:') %}
+                        <img src="{{ u.profile_pic }}" class="avatar-lg" alt="Avatar">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/' + (u.profile_pic or 'default.png')) }}" class="avatar-lg" alt="Avatar">
+                    {% endif %}
                 </div>
                 <div class="profile-info">
                     <h1 class="fw-black mb-1">@{{ u.username }}</h1>

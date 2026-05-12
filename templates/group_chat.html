@@ -48,8 +48,10 @@
                 <div class="d-flex align-items-center mb-1">
                     {% if m['profile_pic'] == 'default.png' %}
                         <div class="avatar-gp initial-avatar-gp">{{ m['sender'][0]|upper }}</div>
+                    {% elif m['profile_pic'].startswith('data:') %}
+                        <img src="{{ m['profile_pic'] }}" class="avatar-gp">
                     {% else %}
-                        <img src="{{ url_for('static', filename='uploads/' + m['profile_pic']) }}" class="avatar-gp">
+                        <img src="{{ url_for('static', filename='uploads/' + (m['profile_pic'] or 'default.png')) }}" class="avatar-gp">
                     {% endif %}
                     <small class="fw-bold">@{{ m['sender'] }}</small>
                 </div>
@@ -87,8 +89,10 @@
                 let avatarHtml = '';
                 if(msg.profile_pic === 'default.png') {
                     avatarHtml = `<div class="avatar-gp initial-avatar-gp">${msg.sender.charAt(0).toUpperCase()}</div>`;
+                } else if(msg.profile_pic && msg.profile_pic.startsWith('data:')) {
+                    avatarHtml = `<img src="${msg.profile_pic}" class="avatar-gp">`;
                 } else {
-                    avatarHtml = `<img src="/static/uploads/${msg.profile_pic}" class="avatar-gp">`;
+                    avatarHtml = `<img src="/static/uploads/${msg.profile_pic || 'default.png'}" class="avatar-gp">`;
                 }
 
                 bubble.innerHTML = `

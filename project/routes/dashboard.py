@@ -138,22 +138,26 @@ def profile():
                           (generate_password_hash(np), session["user"]))
                 flash("Şifre başarıyla güncellendi!", "success")
             
-            # Profil resmi
+            # Profil resmi (Kalıcı Base64 Depolama)
             if 'profile_pic' in request.files:
                 f = request.files['profile_pic']
                 if f and f.filename != '':
-                    if '.' in f.filename:
-                        ext = f.filename.rsplit('.', 1)[1].lower()
-                        if ext in ALLOWED_EXTENSIONS:
-                            fn = secure_filename(f"{session['user']}_{int(datetime.now().timestamp())}.{ext}")
-                            # Kaydetmeden önce klasör kontrolü (ekstra güvenlik)
-                            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-                            f.save(os.path.join(UPLOAD_FOLDER, fn))
-                            c.execute("UPDATE users SET profile_pic=? WHERE username=?", (fn, session["user"]))
-                            flash("Profil fotoğrafı güncellendi!", "success")
-                            print(f"DEBUG: Profile pic saved for {session['user']} as {fn}")
-                        else:
-                            flash("Geçersiz dosya türü!", "danger")
+                    import base64
+                    from io import BytesIO
+                    from PIL import Image
+                    try:
+                        img = Image.open(f)
+                        # Resmi optimize et ve küçült
+                        img.thumbnail((300, 300))
+                        buffered = BytesIO()
+                        img.save(buffered, format="PNG")
+                        img_str = base64.b64encode(buffered.getvalue()).decode()
+                        data_uri = f"data:image/png;base64,{img_str}"
+                        
+                        c.execute("UPDATE users SET profile_pic=? WHERE username=?", (data_uri, session["user"]))
+                        flash("Profil fotoğrafı güncellendi! (Veritabanına kalıcı olarak kaydedildi)", "success")
+                    except Exception as e:
+                        flash(f"Fotoğraf işlenirken hata oluştu: {e}", "danger")
             
             conn.commit()
             return redirect(url_for("dashboard.profile"))

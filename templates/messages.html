@@ -721,8 +721,10 @@
                         <div class="contact-avatar initial-avatar">
                             {{ contact.contact[0]|upper }}
                         </div>
+                    {% elif pic.startswith('data:') %}
+                        <img src="{{ pic }}" class="contact-avatar" alt="{{ contact.contact }}">
                     {% else %}
-                        <img src="{{ avatar_url }}" class="contact-avatar" alt="{{ contact.contact }}">
+                        <img src="{{ url_for('static', filename='uploads/' + (pic or 'default.png')) }}" class="contact-avatar" alt="{{ contact.contact }}">
                     {% endif %}
                     <div class="contact-info">
                         <div class="contact-name">@{{ contact.contact }}</div>
