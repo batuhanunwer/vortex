@@ -35,7 +35,9 @@
         </div>
 
         <div class="mt-auto pt-3 border-top border-danger border-opacity-10">
-            <a href="/leave_group/{{ room_id }}" onclick="return confirm('Ayrılmak istediğine emin misin?')" class="btn btn-sm btn-outline-danger w-100 fw-bold">GRUPTAN AYRIL</a>
+            <form action="{{ url_for('groups.leave_group', room_id=room_id) }}" method="POST" onsubmit="return confirm('Ayrılmak istediğine emin misin?')">
+                <button type="submit" class="btn btn-sm btn-outline-danger w-100 fw-bold text-uppercase">Gruptan Ayrıl</button>
+            </form>
         </div>
     </div>
 

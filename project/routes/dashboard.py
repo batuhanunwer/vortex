@@ -69,6 +69,9 @@ def dashboard():
             'role': 'user',
             'banned': 0
         }
+        # Postgres datetime objesi güvenliği
+        if isinstance(u_data.get('created_at'), datetime):
+            u_data['created_at'] = u_data['created_at'].strftime("%Y-%m-%d %H:%M:%S")
         
         # Okunmamış mesaj sayısı
         c.execute("""SELECT COUNT(*) AS count FROM messages 
@@ -155,7 +158,16 @@ def profile():
         # Kullanıcı verileri ve İstatistikler
         c.execute("SELECT * FROM users WHERE username=?", (session["user"],))
         u_row = c.fetchone()
-        u_data = dict(u_row)
+        u_data = dict(u_row) if u_row else {
+            'username': session['user'],
+            'profile_pic': 'default.png',
+            'role': 'user',
+            'created_at': 'Bilinmiyor'
+        }
+        
+        # Postgres datetime objesi güvenliği
+        if isinstance(u_data.get('created_at'), datetime):
+            u_data['created_at'] = u_data['created_at'].strftime("%Y-%m-%d %H:%M:%S")
         
         c.execute("SELECT COUNT(*) AS count FROM room_members WHERE username=?", (session["user"],))
         row = c.fetchone()
