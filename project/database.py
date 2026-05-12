@@ -76,5 +76,22 @@ def db_kur():
         try: c.execute(f"CREATE INDEX IF NOT EXISTS {idx} ON {t}({c_name})")
         except: pass
     if not DATABASE_URL: conn.commit()
+    
+    # Varsayılan Admin Oluştur (Eğer hiç admin yoksa)
+    try:
+        c.execute("SELECT COUNT(*) AS count FROM users WHERE role = 'admin'")
+        res = c.fetchone()
+        admin_count = res['count'] if res else 0
+        
+        if admin_count == 0:
+            from werkzeug.security import generate_password_hash
+            admin_user = "vortex_admin"
+            admin_pass = generate_password_hash("Vortexadmin123")
+            c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')", (admin_user, admin_pass))
+            if not DATABASE_URL: conn.commit()
+            print("Varsayılan admin hesabı oluşturuldu: vortex_admin / Vortexadmin123")
+    except Exception as e:
+        print(f"Admin provisioning error: {e}")
+
     conn.close()
     print("Veritabanı hazır.")
