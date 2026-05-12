@@ -3,6 +3,7 @@ from flask import session, request
 from flask_socketio import emit, join_room, leave_room
 from project.socketio_instance import socketio
 from project.database import db
+import os
 
 connected_users = {}
 
@@ -51,11 +52,17 @@ def handle_private_message(data):
     
     conn = db()
     c = conn.cursor()
-    c.execute(
-        "INSERT INTO messages (sender, receiver, content, timestamp) VALUES (?, ?, ?, ?)",
-        (sender, receiver, content, timestamp)
-    )
-    msg_id = c.lastrowid
+    query = "INSERT INTO messages (sender, receiver, content, timestamp) VALUES (?, ?, ?, ?)"
+    if os.getenv("DATABASE_URL"):
+        query += " RETURNING id"
+    
+    c.execute(query, (sender, receiver, content, timestamp))
+    
+    if os.getenv("DATABASE_URL"):
+        msg_id = c.fetchone()[0]
+    else:
+        msg_id = c.lastrowid
+        
     conn.commit()
     conn.close()
 
@@ -82,11 +89,16 @@ def handle_group_message(data):
 
     conn = db()
     c = conn.cursor()
-    c.execute(
-        "INSERT INTO room_messages (room_id, sender, content, timestamp) VALUES (?, ?, ?, ?)",
-        (room_id, sender, content, timestamp)
-    )
-    msg_id = c.lastrowid
+    query = "INSERT INTO room_messages (room_id, sender, content, timestamp) VALUES (?, ?, ?, ?)"
+    if os.getenv("DATABASE_URL"):
+        query += " RETURNING id"
+    
+    c.execute(query, (room_id, sender, content, timestamp))
+    
+    if os.getenv("DATABASE_URL"):
+        msg_id = c.fetchone()[0]
+    else:
+        msg_id = c.lastrowid
     
     # Get profile pic for frontend
     c.execute("SELECT profile_pic FROM users WHERE username=?", (sender,))
